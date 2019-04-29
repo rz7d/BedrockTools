@@ -1,0 +1,16 @@
+[
+{
+  "modid": "bedrocktools",
+  "name": "BedrockTools",
+  "description": "Infinite Power with Bedrocks",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["azure"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
