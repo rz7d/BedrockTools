@@ -1,5 +1,6 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
@@ -7,12 +8,14 @@ import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumActionResult;
@@ -20,12 +23,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
     private static final float ATTACK_DAMAGE = 22F;
     private static final String NAME = "bedrock_pickaxe";
+    private static final String KEY = "bedrocktools.pickaxe_mode";
 
     static enum ItemMode {
         NORMAL(20F),
@@ -48,7 +53,26 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     }
 
-    private volatile ItemMode mode = ItemMode.NORMAL;
+    private static boolean hasTag(ItemStack item) {
+        final NBTTagCompound tagCompound = item.getTagCompound();
+        return tagCompound != null && tagCompound.hasKey(KEY);
+    }
+
+    private static NBTTagCompound getTag(ItemStack item) {
+        return item.getTagCompound().getCompoundTag(KEY);
+    }
+
+    public ItemMode getMode(ItemStack item) {
+        return hasTag(item) ? ItemMode.values()[getTag(item).getInteger("mode")] : ItemMode.NORMAL;
+    }
+
+    public void setMode(ItemStack item, ItemMode mode) {
+        if (item.getTagCompound() == null)
+            item.setTagCompound(new NBTTagCompound());
+        if (!item.getTagCompound().hasKey(KEY))
+            item.getTagCompound().setTag(KEY, new NBTTagCompound());
+        getTag(item).setInteger("mode", mode.ordinal());
+    }
 
     public ItemBedrockPickaxe() {
         super(BedrockToolsMaterial.BEDROCK);
@@ -58,13 +82,23 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     @Override
+    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
+        super.addInformation(stack, world, tooltip, flag);
+
+        ItemMode mode = getMode(stack);
+        tooltip.add("Mode: " + TextFormatting.BLUE + mode.name());
+        tooltip.add("Efficiency: " + TextFormatting.BLUE + mode.efficiency);
+
+    }
+
+    @Override
     public boolean canHarvestBlock(IBlockState blockState) {
         return true;
     }
 
     @Override
     public float getDestroySpeed(ItemStack item, IBlockState blockState) {
-        final ItemMode mode = this.mode;
+        final ItemMode mode = this.getMode(item);
         assert mode != null;
         return mode.efficiency;
     }
@@ -85,10 +119,11 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         ItemStack item = player.getHeldItem(hand);
         if (player.isSneaking()) {
             if (!world.isRemote) {
-                mode = mode.next();
+                ItemMode mode = getMode(item).next();
+                setMode(item, mode);
                 player.sendMessage(
                         new TextComponentString(
-                                String.format("[BedrockTools] Mode: %s (%.0f)", mode.name(), mode.efficiency)));
+                                String.format("[Bedrock] Mode: %s (%.0f)", mode.name(), mode.efficiency)));
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
