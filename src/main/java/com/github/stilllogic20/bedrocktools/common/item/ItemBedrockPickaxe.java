@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
-import com.github.stilllogic20.bedrocktools.common.init.Items;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -53,7 +52,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     public ItemBedrockPickaxe() {
         super(BedrockToolsMaterial.BEDROCK);
-        setCreativeTab(Items.CREATIVE_TAB);
         setTranslationKey(NAME);
         setRegistryName(BedrockToolsMod.MODID, NAME);
         setHarvestLevel("pickaxe", -1);

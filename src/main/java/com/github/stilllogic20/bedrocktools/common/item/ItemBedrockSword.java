@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
-import com.github.stilllogic20.bedrocktools.common.init.Items;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -29,7 +28,6 @@ public class ItemBedrockSword extends ItemSword {
 
     public ItemBedrockSword() {
         super(BedrockToolsMaterial.BEDROCK);
-        setCreativeTab(Items.CREATIVE_TAB);
         setTranslationKey(NAME);
         setRegistryName(BedrockToolsMod.MODID, NAME);
         this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {

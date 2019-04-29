@@ -1,5 +1,6 @@
 package com.github.stilllogic20.bedrocktools.client;
 
+import com.github.stilllogic20.bedrocktools.client.init.CreativeTabs;
 import com.github.stilllogic20.bedrocktools.client.init.Renders;
 import com.github.stilllogic20.bedrocktools.common.CommonProxy;
 
@@ -15,6 +16,7 @@ public class ClientProxy extends CommonProxy {
     public void construct(FMLConstructionEvent event) {
         super.construct(event);
         MinecraftForge.EVENT_BUS.register(new Renders());
+        CreativeTabs.init();
     }
 
 }
