@@ -53,8 +53,11 @@ public class ItemBedrockSword extends ItemSword {
     @Override
     public boolean hitEntity(ItemStack item, EntityLivingBase target, EntityLivingBase attacker) {
         if (attacker instanceof EntityPlayer) {
-            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, getAttackDamage());
-            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), getAttackDamage() * 0.3F);
+            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), getAttackDamage() * 0.5F);
+            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, getAttackDamage() * 0.8F);
+            if (!(target instanceof EntityPlayer)) {
+                target.setHealth(target.getHealth() * 0.01F);
+            }
         } else {
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), getAttackDamage());
         }
