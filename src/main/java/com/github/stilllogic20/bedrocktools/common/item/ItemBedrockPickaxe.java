@@ -140,7 +140,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         IBlockState state = world.getBlockState(pos);
         if (state != null && !player.isSneaking()) {
             final Block block = state.getBlock();
-            if (Objects.equals(block, Blocks.BEDROCK)) {
+            if (Float.compare(state.getBlockHardness(world, pos), -1) == 0) {
                 block.onBlockHarvested(world, pos, state, player);
                 world.setBlockToAir(pos);
                 world.playEvent(null, 2001, pos, Block.getStateId(state));

@@ -16,6 +16,8 @@ public class CreativeTabs {
     public static void init() {
         Items.BEDROCK_PICKAXE.setCreativeTab(CREATIVE_TAB);
         Items.BEDROCK_SWORD.setCreativeTab(CREATIVE_TAB);
+        Items.END_PORTAL.setCreativeTab(CREATIVE_TAB);
+        Items.PORTAL.setCreativeTab(CREATIVE_TAB);
     }
 
 }

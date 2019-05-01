@@ -19,6 +19,8 @@ public final class Renders {
     public void registerModels(ModelRegistryEvent event) {
         registerToRender(Items.BEDROCK_PICKAXE);
         registerToRender(Items.BEDROCK_SWORD);
+        registerToRender(Items.PORTAL);
+        registerToRender(Items.END_PORTAL);
     }
 
     private static void registerToRender(Item item) {
