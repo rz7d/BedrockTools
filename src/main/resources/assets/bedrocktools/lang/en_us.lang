@@ -1,3 +1,16 @@
 item.bedrock_pickaxe.name=Bedrock Pickaxe
 item.bedrock_sword.name=Bedrock Sword
-itemGroup.bedrocktools=Bedrock Tools
+item.end_portal.name=End Portal
+itemGroup.bedrocktools=BedrockTools
+
+bedrocktools.item.tooltip.efficiency=Efficiency
+bedrocktools.item.tooltip.mode=Mode
+
+bedrocktools.mode.normal=Normal
+bedrocktools.mode.middle=Middle
+bedrocktools.mode.slow=Slow
+bedrocktools.mode.fast=Fast
+bedrocktools.mode.insane=Insane
+bedrocktools.mode.off=Off
+
+bedrocktools.item.tooltip.blockable=Blockable

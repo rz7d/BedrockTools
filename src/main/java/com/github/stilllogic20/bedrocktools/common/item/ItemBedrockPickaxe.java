@@ -1,7 +1,6 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
@@ -12,7 +11,6 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,6 +23,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
@@ -82,12 +82,21 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
 
         ItemMode mode = getMode(stack);
-        tooltip.add("Mode: " + TextFormatting.BLUE + mode.name());
-        tooltip.add("Efficiency: " + TextFormatting.BLUE + mode.efficiency);
+        tooltip.add(
+                String.format("%s: %s%s",
+                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.mode"),
+                        TextFormatting.BLUE,
+                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + mode.name().toLowerCase())));
+        tooltip.add(
+                String.format("%s: %s%.0f",
+                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"),
+                        TextFormatting.BLUE,
+                        mode.efficiency));
 
     }
 
@@ -115,6 +124,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (world.isRemote)
             return super.onItemRightClick(world, player, hand);
@@ -123,9 +133,15 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (player.isSneaking()) {
             ItemMode mode = getMode(item).next();
             setMode(item, mode);
-            player.sendMessage(
-                    new TextComponentString(
-                            String.format("[Bedrock] Mode: %s (%.0f)", mode.name(), mode.efficiency)));
+
+            player.sendMessage(new TextComponentString(
+                    String.format("[BedrockTools] %s: %s%s(%.0f)",
+                            net.minecraft.util.text.translation.I18n
+                                    .translateToLocal("bedrocktools.item.tooltip.mode"),
+                            TextFormatting.BLUE,
+                            net.minecraft.util.text.translation.I18n
+                                    .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+                            mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
