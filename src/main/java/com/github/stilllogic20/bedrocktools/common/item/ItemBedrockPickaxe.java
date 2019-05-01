@@ -116,35 +116,39 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        if (world.isRemote)
+            return super.onItemRightClick(world, player, hand);
+
         ItemStack item = player.getHeldItem(hand);
         if (player.isSneaking()) {
-            if (!world.isRemote) {
-                ItemMode mode = getMode(item).next();
-                setMode(item, mode);
-                player.sendMessage(
-                        new TextComponentString(
-                                String.format("[Bedrock] Mode: %s (%.0f)", mode.name(), mode.efficiency)));
-            }
+            ItemMode mode = getMode(item).next();
+            setMode(item, mode);
+            player.sendMessage(
+                    new TextComponentString(
+                            String.format("[Bedrock] Mode: %s (%.0f)", mode.name(), mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand,
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
             EnumFacing facing, float hitX, float hitY, float hitZ) {
-        IBlockState state = worldIn.getBlockState(pos);
-        if (state != null && !worldIn.isRemote) {
+        if (world.isRemote)
+            return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
+
+        IBlockState state = world.getBlockState(pos);
+        if (state != null) {
             final Block block = state.getBlock();
             if (Objects.equals(block, Blocks.BEDROCK)) {
-                block.onBlockHarvested(worldIn, pos, state, player);
-                worldIn.setBlockToAir(pos);
-                worldIn.playEvent(null, 2001, pos, Block.getStateId(state));
-                block.breakBlock(worldIn, pos, state);
-                worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(block)));
+                block.onBlockHarvested(world, pos, state, player);
+                world.setBlockToAir(pos);
+                world.playEvent(null, 2001, pos, Block.getStateId(state));
+                block.breakBlock(world, pos, state);
+                world.spawnEntity(new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(block)));
             }
         }
-        return super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+        return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
     }
 
     @Override
