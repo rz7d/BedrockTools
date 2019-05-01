@@ -138,7 +138,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
         IBlockState state = world.getBlockState(pos);
-        if (state != null) {
+        if (state != null && !player.isSneaking()) {
             final Block block = state.getBlock();
             if (Objects.equals(block, Blocks.BEDROCK)) {
                 block.onBlockHarvested(world, pos, state, player);
