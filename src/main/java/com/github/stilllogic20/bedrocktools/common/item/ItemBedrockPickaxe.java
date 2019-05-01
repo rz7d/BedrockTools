@@ -177,4 +177,11 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         return false;
     }
 
+    @Override
+    public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+        if (world.isRemote)
+            return super.canDestroyBlockInCreative(world, pos, stack, player);
+        return getMode(stack) != ItemMode.OFF;
+    }
+
 }
