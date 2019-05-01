@@ -1,11 +1,15 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
@@ -37,6 +41,13 @@ public class ItemBedrockSword extends ItemSword {
                         : 0.0F;
             }
         });
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        tooltip.add(I18n.format("bedrocktools.item.tooltip.blockable"));
     }
 
     @Override
