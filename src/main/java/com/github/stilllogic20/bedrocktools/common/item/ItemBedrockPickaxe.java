@@ -32,7 +32,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     private static final String NAME = "bedrock_pickaxe";
     private static final String MODE_KEY = "bedrocktools.pickaxe_mode";
 
-    static enum EfficiencyMode {
+    static enum MiningMode {
         NORMAL(20F),
         MIDDLE(12F),
         SLOW(8F),
@@ -42,12 +42,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         private final float efficiency;
 
-        private EfficiencyMode(float efficiency) {
+        private MiningMode(float efficiency) {
             this.efficiency = efficiency;
         }
 
-        public EfficiencyMode next() {
-            final EfficiencyMode[] values = values();
+        public MiningMode next() {
+            final MiningMode[] values = values();
             return values[(ordinal() + 1) % values.length];
         }
 
@@ -85,21 +85,21 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         return item.getTagCompound().getCompoundTag(MODE_KEY);
     }
 
-    public EfficiencyMode getEfficiencyMode(ItemStack item) {
-        return hasTag(item) ? EfficiencyMode.values()[getTag(item).getInteger("efficiency")] : EfficiencyMode.NORMAL;
+    public MiningMode getMiningMode(ItemStack item) {
+        return hasTag(item) ? MiningMode.values()[getTag(item).getInteger("efficiency")] : MiningMode.NORMAL;
     }
 
     public VeinMode getVeinMode(ItemStack item) {
         return hasTag(item) ? VeinMode.values()[getTag(item).getInteger("vein")] : VeinMode.NORMAL;
     }
 
-    public void setMode(ItemStack item, EfficiencyMode efficiencyMode, VeinMode veinMode) {
+    public void setMode(ItemStack item, MiningMode miningMode, VeinMode veinMode) {
         if (item.getTagCompound() == null)
             item.setTagCompound(new NBTTagCompound());
         if (!item.getTagCompound().hasKey(MODE_KEY))
             item.getTagCompound().setTag(MODE_KEY, new NBTTagCompound());
-        if (!item.getTagCompound().hasKey("efficiency") && efficiencyMode != null)
-            getTag(item).setInteger("efficiency", efficiencyMode.ordinal());
+        if (!item.getTagCompound().hasKey("efficiency") && miningMode != null)
+            getTag(item).setInteger("efficiency", miningMode.ordinal());
         if (!item.getTagCompound().hasKey("vein") && veinMode != null)
             getTag(item).setInteger("vein", veinMode.ordinal());
     }
@@ -116,7 +116,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
 
-        EfficiencyMode efficiencyMode = getEfficiencyMode(stack);
+      MiningMode efficiencyMode = getMiningMode(stack);
         VeinMode veinMode = getVeinMode(stack);
         tooltip.add(
                 String.format("%s: %s%s",
@@ -143,7 +143,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public float getDestroySpeed(ItemStack item, IBlockState blockState) {
-        final EfficiencyMode mode = this.getEfficiencyMode(item);
+        final MiningMode mode = this.getMiningMode(item);
         assert mode != null;
         return mode.efficiency;
     }
@@ -167,7 +167,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         ItemStack item = player.getHeldItem(hand);
         if (player.isSneaking()) {
-            EfficiencyMode mode = getEfficiencyMode(item).next();
+          MiningMode mode = getMiningMode(item).next();
             setMode(item, mode, null);
 
             player.sendMessage(new TextComponentString(
@@ -217,7 +217,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
         if (world.isRemote)
             return super.canDestroyBlockInCreative(world, pos, stack, player);
-        return getEfficiencyMode(stack) != EfficiencyMode.OFF;
+        return getMiningMode(stack) != MiningMode.OFF;
     }
 
 }
