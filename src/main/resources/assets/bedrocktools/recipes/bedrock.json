@@ -1,0 +1,21 @@
+{
+    "type": "forge:ore_shaped",
+    "group": "bedrocktools:recipe_bedrock",
+    "result": {
+        "item": "minecraft:bedrock",
+        "count": 9
+    },
+    "pattern": [
+        "XXX",
+        "XTX",
+        "XXX"
+    ],
+    "key": {
+        "T": {
+            "item": "minecraft:nether_star"
+        },
+        "X": {
+            "item": "minecraft:bedrock"
+        }
+    }
+}
