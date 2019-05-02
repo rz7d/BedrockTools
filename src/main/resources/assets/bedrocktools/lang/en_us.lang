@@ -4,7 +4,9 @@ item.end_portal.name=End Portal
 itemGroup.bedrocktools=BedrockTools
 
 bedrocktools.item.tooltip.efficiency=Efficiency
-bedrocktools.item.tooltip.mode=Mode
+bedrocktools.item.tooltip.miningmode=Mining Mode
+bedrocktools.item.tooltip.vein=Vein
+bedrocktools.item.tooltip.veinmode=Vein Mode
 
 bedrocktools.mode.normal=Normal
 bedrocktools.mode.middle=Middle
@@ -12,5 +14,8 @@ bedrocktools.mode.slow=Slow
 bedrocktools.mode.fast=Fast
 bedrocktools.mode.insane=Insane
 bedrocktools.mode.off=Off
+bedrocktools.mode.more=More
 
 bedrocktools.item.tooltip.blockable=Blockable
+
+bedrocktools.keybinding.togglevein=Toggle vein mode

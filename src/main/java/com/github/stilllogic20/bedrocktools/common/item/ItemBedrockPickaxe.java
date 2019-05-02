@@ -30,9 +30,9 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     private static final float ATTACK_DAMAGE = 22F;
     private static final String NAME = "bedrock_pickaxe";
-    private static final String KEY = "bedrocktools.pickaxe_mode";
+    private static final String MODE_KEY = "bedrocktools.pickaxe_mode";
 
-    static enum ItemMode {
+    static enum EfficiencyMode {
         NORMAL(20F),
         MIDDLE(12F),
         SLOW(8F),
@@ -42,36 +42,66 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         private final float efficiency;
 
-        private ItemMode(float efficiency) {
+        private EfficiencyMode(float efficiency) {
             this.efficiency = efficiency;
         }
 
-        public ItemMode next() {
-            final ItemMode[] values = values();
+        public EfficiencyMode next() {
+            final EfficiencyMode[] values = values();
             return values[(ordinal() + 1) % values.length];
         }
 
     }
 
+    public enum VeinMode {
+        NORMAL(10F),
+        MORE(20F),
+        INSANE(Float.MAX_VALUE),
+        OFF(0F);
+
+        private final float range;
+
+        private VeinMode(float range) {
+            this.range = range;
+      }
+
+      public VeinMode next() {
+        final VeinMode[] values = values();
+        return values[(ordinal() + 1) % values.length];
+      }
+
+      public float getRange(){
+          return range;
+      }
+
+    }
+
     private static boolean hasTag(ItemStack item) {
         final NBTTagCompound tagCompound = item.getTagCompound();
-        return tagCompound != null && tagCompound.hasKey(KEY);
+        return tagCompound != null && tagCompound.hasKey(MODE_KEY);
     }
 
     private static NBTTagCompound getTag(ItemStack item) {
-        return item.getTagCompound().getCompoundTag(KEY);
+        return item.getTagCompound().getCompoundTag(MODE_KEY);
     }
 
-    public ItemMode getMode(ItemStack item) {
-        return hasTag(item) ? ItemMode.values()[getTag(item).getInteger("mode")] : ItemMode.NORMAL;
+    public EfficiencyMode getEfficiencyMode(ItemStack item) {
+        return hasTag(item) ? EfficiencyMode.values()[getTag(item).getInteger("efficiency")] : EfficiencyMode.NORMAL;
     }
 
-    public void setMode(ItemStack item, ItemMode mode) {
+    public VeinMode getVeinMode(ItemStack item) {
+        return hasTag(item) ? VeinMode.values()[getTag(item).getInteger("vein")] : VeinMode.NORMAL;
+    }
+
+    public void setMode(ItemStack item, EfficiencyMode efficiencyMode, VeinMode veinMode) {
         if (item.getTagCompound() == null)
             item.setTagCompound(new NBTTagCompound());
-        if (!item.getTagCompound().hasKey(KEY))
-            item.getTagCompound().setTag(KEY, new NBTTagCompound());
-        getTag(item).setInteger("mode", mode.ordinal());
+        if (!item.getTagCompound().hasKey(MODE_KEY))
+            item.getTagCompound().setTag(MODE_KEY, new NBTTagCompound());
+        if (!item.getTagCompound().hasKey("efficiency") && efficiencyMode != null)
+            getTag(item).setInteger("efficiency", efficiencyMode.ordinal());
+        if (!item.getTagCompound().hasKey("vein") && veinMode != null)
+            getTag(item).setInteger("vein", veinMode.ordinal());
     }
 
     public ItemBedrockPickaxe() {
@@ -86,17 +116,23 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
 
-        ItemMode mode = getMode(stack);
+        EfficiencyMode efficiencyMode = getEfficiencyMode(stack);
+        VeinMode veinMode = getVeinMode(stack);
         tooltip.add(
                 String.format("%s: %s%s",
-                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.mode"),
+                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"),
                         TextFormatting.BLUE,
-                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + mode.name().toLowerCase())));
+                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + efficiencyMode.name().toLowerCase())));
         tooltip.add(
                 String.format("%s: %s%.0f",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"),
                         TextFormatting.BLUE,
-                        mode.efficiency));
+                        efficiencyMode.efficiency));
+        tooltip.add(
+               String.format("%s: %s%s",
+                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"),
+                        TextFormatting.BLUE,
+                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
 
     }
 
@@ -107,7 +143,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public float getDestroySpeed(ItemStack item, IBlockState blockState) {
-        final ItemMode mode = this.getMode(item);
+        final EfficiencyMode mode = this.getEfficiencyMode(item);
         assert mode != null;
         return mode.efficiency;
     }
@@ -131,13 +167,13 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         ItemStack item = player.getHeldItem(hand);
         if (player.isSneaking()) {
-            ItemMode mode = getMode(item).next();
-            setMode(item, mode);
+            EfficiencyMode mode = getEfficiencyMode(item).next();
+            setMode(item, mode, null);
 
             player.sendMessage(new TextComponentString(
                     String.format("[BedrockTools] %s: %s%s(%.0f)",
                             net.minecraft.util.text.translation.I18n
-                                    .translateToLocal("bedrocktools.item.tooltip.mode"),
+                                    .translateToLocal("bedrocktools.item.tooltip.miningmode"),
                             TextFormatting.BLUE,
                             net.minecraft.util.text.translation.I18n
                                     .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
@@ -181,7 +217,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
         if (world.isRemote)
             return super.canDestroyBlockInCreative(world, pos, stack, player);
-        return getMode(stack) != ItemMode.OFF;
+        return getEfficiencyMode(stack) != EfficiencyMode.OFF;
     }
 
 }
