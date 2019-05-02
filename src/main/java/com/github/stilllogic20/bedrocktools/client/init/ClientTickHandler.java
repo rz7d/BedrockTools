@@ -31,7 +31,7 @@ public class ClientTickHandler {
         String.format("[BedrockTools] %s: %s%s(%.0f)",
           net.minecraft.util.text.translation.I18n
             .translateToLocal("bedrocktools.item.tooltip.veinmode"),
-          TextFormatting.BLUE,
+          TextFormatting.DARK_AQUA,
           net.minecraft.util.text.translation.I18n
             .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
           mode.getRange())));
