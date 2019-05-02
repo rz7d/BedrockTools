@@ -1,4 +1,4 @@
-package com.github.stilllogic20.bedrocktools.client.init;
+package com.github.stilllogic20.bedrocktools.client;
 
 import com.github.stilllogic20.bedrocktools.client.ClientProxy;
 import com.github.stilllogic20.bedrocktools.common.init.Items;

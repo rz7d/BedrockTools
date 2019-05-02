@@ -1,6 +1,5 @@
 package com.github.stilllogic20.bedrocktools.client;
 
-import com.github.stilllogic20.bedrocktools.client.init.ClientTickHandler;
 import com.github.stilllogic20.bedrocktools.client.init.CreativeTabs;
 import com.github.stilllogic20.bedrocktools.client.init.Renders;
 import com.github.stilllogic20.bedrocktools.common.CommonProxy;
