@@ -62,6 +62,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         NORMAL(10F),
         MORE(20F),
         INSANE(Float.MAX_VALUE),
+        ALL(0F),
         OFF(0F);
 
         private final float range;
@@ -215,7 +216,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             EntityLivingBase entity) {
         if (world.isRemote || !(entity instanceof EntityPlayer))
             return super.onBlockDestroyed(stack, world, state, pos, entity);
-        if (getVeinMode(stack) != VeinMode.OFF) {
+        if (getVeinMode(stack) == VeinMode.ALL) {
             Block block = state.getBlock();
             if (Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block)))
                     .mapToObj(OreDictionary::getOreName)
