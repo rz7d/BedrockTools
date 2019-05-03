@@ -4,18 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.ItemMode;
+import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.MiningMode;
 
 public class ItemBedrockPickaxeTest {
 
     @Test
     public void testNext() {
-        assertEquals(ItemMode.MIDDLE, ItemMode.NORMAL.next());
-        assertEquals(ItemMode.SLOW, ItemMode.MIDDLE.next());
-        assertEquals(ItemMode.FAST, ItemMode.SLOW.next());
-        assertEquals(ItemMode.INSANE, ItemMode.FAST.next());
-        assertEquals(ItemMode.OFF, ItemMode.INSANE.next());
-        assertEquals(ItemMode.NORMAL, ItemMode.OFF.next());
+        assertEquals(MiningMode.MIDDLE, MiningMode.NORMAL.next());
+        assertEquals(MiningMode.SLOW, MiningMode.MIDDLE.next());
+        assertEquals(MiningMode.FAST, MiningMode.SLOW.next());
+        assertEquals(MiningMode.INSANE, MiningMode.FAST.next());
+        assertEquals(MiningMode.OFF, MiningMode.INSANE.next());
+        assertEquals(MiningMode.NORMAL, MiningMode.OFF.next());
     }
 
 }
