@@ -1,9 +1,10 @@
 package com.github.stilllogic20.bedrocktools.client;
 
-import com.github.stilllogic20.bedrocktools.client.ClientProxy;
 import com.github.stilllogic20.bedrocktools.common.init.Items;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -29,11 +30,9 @@ public class ClientTickHandler {
       pickaxe.setMode(itemInMainHand, null, mode);
       minecraft.player.sendMessage(new TextComponentString(
         String.format("[BedrockTools] %s: %s%s(%.0f)",
-          net.minecraft.util.text.translation.I18n
-            .translateToLocal("bedrocktools.item.tooltip.veinmode"),
+          I18n.format("bedrocktools.item.tooltip.veinmode"),
           TextFormatting.DARK_AQUA,
-          net.minecraft.util.text.translation.I18n
-            .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+          I18n.format("bedrocktools.mode." + mode.name().toLowerCase()),
           mode.getRange())));
     }
   }
