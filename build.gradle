@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.1-beta-" + getRevision()
+version = "1.2.0." + getRevision()
 group = "com.github.stilllogic20.bedrocktools"
 archivesBaseName = "bedrocktools"
 
