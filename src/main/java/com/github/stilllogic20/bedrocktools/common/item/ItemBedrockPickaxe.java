@@ -229,8 +229,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (world.isRemote)
             return super.onBlockStartBreak(stack, pos, player);
         IBlockState state = world.getBlockState(pos);
-        System.out.println("Now digging " + state.getBlock());
-        System.out.println("with Vein Mode" + getVeinMode(stack));
         if (getVeinMode(stack) == VeinMode.ALL) {
             Block block = state.getBlock();
             if (Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block)))

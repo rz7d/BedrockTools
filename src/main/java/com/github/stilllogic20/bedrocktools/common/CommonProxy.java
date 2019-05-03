@@ -1,6 +1,7 @@
 package com.github.stilllogic20.bedrocktools.common;
 
 import com.github.stilllogic20.bedrocktools.common.init.Items;
+import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.init.Recipes;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -13,6 +14,7 @@ public class CommonProxy {
         final EventBus eventBus = MinecraftForge.EVENT_BUS;
         eventBus.register(new Items());
         eventBus.register(new Recipes());
+        Messages.init();
     }
 
 }

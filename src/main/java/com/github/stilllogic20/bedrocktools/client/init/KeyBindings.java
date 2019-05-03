@@ -1,7 +1,9 @@
 package com.github.stilllogic20.bedrocktools.client.init;
 
 import com.github.stilllogic20.bedrocktools.common.init.Items;
+import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
+import com.github.stilllogic20.bedrocktools.common.network.VeinModeChangedMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -27,14 +29,14 @@ public class KeyBindings {
     private final Minecraft mc = Minecraft.getMinecraft();
 
     @SubscribeEvent
-    public void onTick(InputEvent.KeyInputEvent event) {
+    public void onKeyInput(InputEvent.KeyInputEvent event) {
         ItemStack itemInMainHand = mc.player.getHeldItemMainhand();
         if (keyToggleVein.isPressed()
                 && mc.player.isSneaking()
                 && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
             ItemBedrockPickaxe pickaxe = Items.BEDROCK_PICKAXE;
             ItemBedrockPickaxe.VeinMode newMode = pickaxe.getVeinMode(itemInMainHand).next();
-            pickaxe.setVeinMode(itemInMainHand, newMode);
+            Messages.NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
             mc.player.sendMessage(new TextComponentString(
                     String.format("[BedrockTools] %s: %s%s(%.0f)",
                             I18n.format("bedrocktools.item.tooltip.veinmode"),
