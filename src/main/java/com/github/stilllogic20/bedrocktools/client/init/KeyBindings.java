@@ -33,14 +33,14 @@ public class KeyBindings {
                 && mc.player.isSneaking()
                 && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
             ItemBedrockPickaxe pickaxe = Items.BEDROCK_PICKAXE;
-            ItemBedrockPickaxe.VeinMode mode = pickaxe.getVeinMode(itemInMainHand).next();
-            pickaxe.setMode(itemInMainHand, null, mode);
+            ItemBedrockPickaxe.VeinMode newMode = pickaxe.getVeinMode(itemInMainHand).next();
+            pickaxe.setVeinMode(itemInMainHand, newMode);
             mc.player.sendMessage(new TextComponentString(
                     String.format("[BedrockTools] %s: %s%s(%.0f)",
                             I18n.format("bedrocktools.item.tooltip.veinmode"),
                             TextFormatting.DARK_AQUA,
-                            I18n.format("bedrocktools.mode." + mode.name().toLowerCase()),
-                            mode.getRange())));
+                            I18n.format("bedrocktools.mode." + newMode.name().toLowerCase()),
+                            newMode.getRange())));
         }
     }
 
