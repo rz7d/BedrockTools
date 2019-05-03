@@ -1,4 +1,4 @@
-package com.github.stilllogic20.bedrocktools.common.item;
+package com.github.stilllogic20.bedrocktools.common.block;
 
 import com.github.stilllogic20.bedrocktools.common.energy.EnergeticItem;
 
