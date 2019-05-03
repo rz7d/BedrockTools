@@ -6,6 +6,7 @@ itemGroup.bedrocktools=BedrockTools
 bedrocktools.item.tooltip.efficiency=採掘速度
 bedrocktools.item.tooltip.miningmode=採掘モード
 bedrocktools.item.tooltip.vein=一括破壊
+bedrocktools.item.tooltip.veinmode=鉱脈モード
 
 bedrocktools.mode.normal=通常
 bedrocktools.mode.middle=中程度
@@ -14,6 +15,7 @@ bedrocktools.mode.fast=速い
 bedrocktools.mode.insane=狂気
 bedrocktools.mode.off=オフ
 bedrocktools.mode.more=多め
+bedrocktools.mode.all=すべて
 
 bedrocktools.item.tooltip.blockable=ガード可能
 

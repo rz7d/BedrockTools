@@ -15,6 +15,7 @@ bedrocktools.mode.fast=Fast
 bedrocktools.mode.insane=Insane
 bedrocktools.mode.off=Off
 bedrocktools.mode.more=More
+bedrocktools.mode.all=All
 
 bedrocktools.item.tooltip.blockable=Blockable
 
