@@ -1,11 +1,11 @@
 package com.github.stilllogic20.bedrocktools.common.block;
 
-import com.github.stilllogic20.bedrocktools.common.energy.EnergeticItem;
+import com.github.stilllogic20.bedrocktools.common.energy.BedrockStorageBase;
 
-public class BlockBedrockBattery extends EnergeticItem {
+public class BlockBedrockBattery extends BedrockStorageBase {
 
-    public BlockBedrockBattery() {
-        super(2147483647L);
+    protected BlockBedrockBattery(long capacity) {
+        super(Integer.MAX_VALUE * 4L);
     }
 
 }
