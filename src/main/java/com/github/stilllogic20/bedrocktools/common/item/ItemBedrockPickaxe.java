@@ -1,9 +1,13 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
+import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -25,6 +29,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
@@ -63,16 +68,16 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         private VeinMode(float range) {
             this.range = range;
-      }
+        }
 
-      public VeinMode next() {
-        final VeinMode[] values = values();
-        return values[(ordinal() + 1) % values.length];
-      }
+        public VeinMode next() {
+            final VeinMode[] values = values();
+            return values[(ordinal() + 1) % values.length];
+        }
 
-      public float getRange(){
-          return range;
-      }
+        public float getRange() {
+            return range;
+        }
 
     }
 
@@ -116,23 +121,25 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
 
-      MiningMode efficiencyMode = getMiningMode(stack);
+        MiningMode efficiencyMode = getMiningMode(stack);
         VeinMode veinMode = getVeinMode(stack);
         tooltip.add(
                 String.format("%s: %s%s",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"),
                         TextFormatting.BLUE,
-                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + efficiencyMode.name().toLowerCase())));
+                        net.minecraft.client.resources.I18n
+                                .format("bedrocktools.mode." + efficiencyMode.name().toLowerCase())));
         tooltip.add(
                 String.format("%s: %s%.0f",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"),
                         TextFormatting.BLUE,
                         efficiencyMode.efficiency));
         tooltip.add(
-               String.format("%s: %s%s",
+                String.format("%s: %s%s",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"),
                         TextFormatting.BLUE,
-                        net.minecraft.client.resources.I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
+                        net.minecraft.client.resources.I18n
+                                .format("bedrocktools.mode." + veinMode.name().toLowerCase())));
 
     }
 
@@ -167,7 +174,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         ItemStack item = player.getHeldItem(hand);
         if (player.isSneaking()) {
-          MiningMode mode = getMiningMode(item).next();
+            MiningMode mode = getMiningMode(item).next();
             setMode(item, mode, null);
 
             player.sendMessage(new TextComponentString(
@@ -201,6 +208,37 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             }
         }
         return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
+    }
+
+    @Override
+    public boolean onBlockDestroyed(ItemStack stack, World world, IBlockState state, BlockPos pos,
+            EntityLivingBase entity) {
+        if (world.isRemote || !(entity instanceof EntityPlayer))
+            return super.onBlockDestroyed(stack, world, state, pos, entity);
+        if (getVeinMode(stack) != VeinMode.OFF) {
+            Block block = state.getBlock();
+            if (Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block)))
+                    .mapToObj(OreDictionary::getOreName)
+                    .peek(System.out::println)
+                    .anyMatch(name -> name.startsWith("ore")
+                            || name.equals("logWood")
+                            || name.equals("treeLeaves"))) {
+                Set<BlockPos> found = new BlockFinder(block).find(128, world, pos);
+                found
+                        .stream()
+                        .filter(p -> !Objects.equals(p, pos))
+                        .forEach(p -> {
+                            IBlockState s = world.getBlockState(p);
+                            Block b = s.getBlock();
+                            b.onBlockHarvested(world, p, state, (EntityPlayer) entity);
+                            world.playEvent(null, 2001, p, Block.getStateId(state));
+                            world.setBlockToAir(p);
+                            b.breakBlock(world, p, state);
+                            b.dropBlockAsItem(world, p, state, 0);
+                        });
+            }
+        }
+        return super.onBlockDestroyed(stack, world, state, pos, entity);
     }
 
     @Override
