@@ -35,6 +35,7 @@ public class ItemBedrockSword extends ItemSword {
         setTranslationKey(NAME);
         setRegistryName(BedrockToolsMod.MODID, NAME);
         this.addPropertyOverride(new ResourceLocation("blocking"), new IItemPropertyGetter() {
+            @Override
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
                 return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F
@@ -84,6 +85,7 @@ public class ItemBedrockSword extends ItemSword {
      * returns the action that specifies what animation to play when the items is
      * being used
      */
+    @Override
     public EnumAction getItemUseAction(ItemStack stack) {
         return EnumAction.BLOCK;
     }
@@ -91,6 +93,7 @@ public class ItemBedrockSword extends ItemSword {
     /**
      * How long it takes to use or consume an item
      */
+    @Override
     public int getMaxItemUseDuration(ItemStack stack) {
         return 72000;
     }
@@ -98,6 +101,7 @@ public class ItemBedrockSword extends ItemSword {
     /**
      * Called when the equipped item is right clicked.
      */
+    @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         playerIn.setActiveHand(handIn);
