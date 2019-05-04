@@ -11,7 +11,11 @@ public final class BedrockToolsMod {
 
     public static final String MODID = "bedrocktools";
 
-    @SidedProxy(modId = MODID, clientSide = "com.github.stilllogic20.bedrocktools.client.ClientProxy", serverSide = "com.github.stilllogic20.bedrocktools.common.CommonProxy")
+    @SidedProxy(
+        modId = MODID,
+        clientSide = "com.github.stilllogic20.bedrocktools.client.ClientProxy", 
+        serverSide = "com.github.stilllogic20.bedrocktools.common.CommonProxy"
+    )
     public static CommonProxy proxy;
 
     @Mod.EventHandler

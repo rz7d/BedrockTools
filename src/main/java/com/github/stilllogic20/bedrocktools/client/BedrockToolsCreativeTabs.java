@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class BedrockToolsCreativeTabs extends CreativeTabs {
 
-    public BedrockToolsCreativeTabs(String domain) {
-        super(domain);
+    public BedrockToolsCreativeTabs(String group) {
+        super(group);
     }
 
     @Override

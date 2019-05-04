@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class CreativeTabs {
 
-    public static final net.minecraft.creativetab.CreativeTabs CREATIVE_TAB = new BedrockToolsCreativeTabs(
-            BedrockToolsMod.MODID);
+    public static final net.minecraft.creativetab.CreativeTabs CREATIVE_TAB 
+        = new BedrockToolsCreativeTabs(BedrockToolsMod.MODID);
 
     public static void init() {
         Items.BEDROCK_PICKAXE.setCreativeTab(CREATIVE_TAB);
