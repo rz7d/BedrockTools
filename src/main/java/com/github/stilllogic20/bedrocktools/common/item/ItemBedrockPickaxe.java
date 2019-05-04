@@ -60,18 +60,21 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             return values[(ordinal() + 1) % values.length];
         }
 
+        public float efficiency() {
+            return efficiency;
+        }
+
     }
 
     public enum VeinMode {
-        NORMAL(10F),
-        MORE(20F),
-        INSANE(Float.MAX_VALUE),
-        ALL(20F),
-        OFF(0F);
+        NORMAL(10),
+        MORE(20),
+        ALL(Integer.MAX_VALUE),
+        OFF(0);
 
-        private final float range;
+        private final int range;
 
-        private VeinMode(float range) {
+        private VeinMode(int range) {
             this.range = range;
         }
 
@@ -80,7 +83,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             return values[(ordinal() + 1) % values.length];
         }
 
-        public float getRange() {
+        public int range() {
             return range;
         }
 
@@ -134,19 +137,19 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
 
-        MiningMode efficiencyMode = getMiningMode(stack);
+        MiningMode miningMode = getMiningMode(stack);
         VeinMode veinMode = getVeinMode(stack);
         tooltip.add(
                 String.format("%s: %s%s",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"),
                         TextFormatting.BLUE,
                         net.minecraft.client.resources.I18n
-                                .format("bedrocktools.mode." + efficiencyMode.name().toLowerCase())));
+                                .format("bedrocktools.mode." + miningMode.name().toLowerCase())));
         tooltip.add(
                 String.format("%s: %s%.0f",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"),
                         TextFormatting.BLUE,
-                        efficiencyMode.efficiency));
+                        miningMode.efficiency()));
         tooltip.add(
                 String.format("%s: %s%s",
                         net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"),
@@ -165,7 +168,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public float getDestroySpeed(ItemStack item, IBlockState blockState) {
         final MiningMode mode = this.getMiningMode(item);
         assert mode != null;
-        return mode.efficiency;
+        return mode.efficiency();
     }
 
     @Override
