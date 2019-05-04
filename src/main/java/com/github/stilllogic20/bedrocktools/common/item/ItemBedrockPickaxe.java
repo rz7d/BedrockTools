@@ -233,7 +233,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             Block block = state.getBlock();
             if (Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block)))
                     .mapToObj(OreDictionary::getOreName)
-                    .peek(System.out::println)
                     .anyMatch(name -> name.startsWith("ore")
                             || name.equals("logWood")
                             || name.equals("treeLeaves"))) {
