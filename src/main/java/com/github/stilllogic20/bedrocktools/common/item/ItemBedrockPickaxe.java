@@ -107,11 +107,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     public VeinMode getVeinMode(@Nonnull ItemStack item) {
+        if (!hasTag(item)) return VeinMode.OFF;
         int index = getTag(item).getInteger(VEIN_MODE_KEY);
         VeinMode[] values = VeinMode.values();
         if (index >= values.length)
             index = 0;
-        return hasTag(item) ? values[index] : VeinMode.NORMAL;
+        return values[index];
     }
 
     public void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
