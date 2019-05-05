@@ -6,7 +6,7 @@ itemGroup.bedrocktools=BedrockTools
 bedrocktools.item.tooltip.efficiency=採掘速度
 bedrocktools.item.tooltip.miningmode=採掘モード
 bedrocktools.item.tooltip.vein=一括破壊
-bedrocktools.item.tooltip.veinmode=鉱脈モード
+bedrocktools.item.tooltip.veinmode=一括破壊モード
 
 bedrocktools.mode.normal=通常
 bedrocktools.mode.middle=中程度
