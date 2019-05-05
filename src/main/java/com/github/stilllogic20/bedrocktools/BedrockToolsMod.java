@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 
-@Mod(modid = BedrockToolsMod.MODID)
+@Mod(modid = BedrockToolsMod.MODID, acceptableRemoteVersions = "*")
 public final class BedrockToolsMod {
 
     public static final String MODID = "bedrocktools";
