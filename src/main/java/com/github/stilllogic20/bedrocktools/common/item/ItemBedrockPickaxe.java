@@ -32,6 +32,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -233,14 +235,17 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             EnumFacing facing = player.getHorizontalFacing();
             boolean isEW = facing == EnumFacing.EAST | facing == EnumFacing.WEST;
 
-            IntStream.rangeClosed(-range, range)
-                    .mapToObj(x -> IntStream.rangeClosed(-range, range)
-                            .mapToObj(z -> IntStream.rangeClosed(-range, range)
-                                .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate BlockPos(int, int, int) from three IntStreams
+            IntStream.rangeClosed(-range, range).mapToObj(x -> IntStream.rangeClosed(-range, range).mapToObj(
+                    z -> IntStream.rangeClosed(-range, range).mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate
+                                                                                                                      // BlockPos(int,
+                                                                                                                      // int,
+                                                                                                                      // int)
+                                                                                                                      // from
+                                                                                                                      // three
+                                                                                                                      // IntStreams
                     .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity()) // please gimme flatMapToObj
                     .filter(b -> world.getBlockState(b).getBlock() == block) // filter block kind
-                    .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
-                    .limit(isOre(block) ? 128 : 9)
+                    .sorted(Comparator.comparing(b -> pos.distanceSq(b))).limit(isOre(block) ? 128 : 9)
                     .forEach(b -> breakBlock(world, b, player));
             break;
         default:
@@ -280,6 +285,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         world.setBlockToAir(position);
         block.breakBlock(world, position, state);
         block.dropBlockAsItem(world, position, state, 0);
+        MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
     }
 
     private static boolean isOre(Block block) {
