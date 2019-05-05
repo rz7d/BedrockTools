@@ -42,12 +42,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     private static final String VEIN_MODE_KEY = "vein";
 
     static enum MiningMode {
-        NORMAL(20F),
-        MIDDLE(12F),
-        SLOW(8F),
-        FAST(128F),
-        INSANE(Float.MAX_VALUE),
-        OFF(0F);
+        NORMAL(20F), MIDDLE(12F), SLOW(8F), FAST(128F), INSANE(Float.MAX_VALUE), OFF(0F);
 
         private final float efficiency;
 
@@ -67,10 +62,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     public enum VeinMode {
-        NORMAL(10),
-        MORE(20),
-        ALL(Integer.MAX_VALUE),
-        OFF(0);
+        NORMAL(10), MORE(20), ALL(Integer.MAX_VALUE), OFF(0);
 
         private final int range;
 

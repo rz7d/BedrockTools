@@ -42,7 +42,7 @@ public class KeyBindings {
                             I18n.format("bedrocktools.item.tooltip.veinmode"),
                             TextFormatting.DARK_AQUA,
                             I18n.format("bedrocktools.mode." + newMode.name().toLowerCase()),
-                            newMode.getRange())));
+                            newMode.range())));
         }
     }
 
