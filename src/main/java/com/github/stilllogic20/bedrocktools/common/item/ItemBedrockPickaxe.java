@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
@@ -20,6 +21,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -205,13 +207,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         IBlockState state = world.getBlockState(pos);
         if (state != null && !player.isSneaking()) {
-            final Block block = state.getBlock();
             if (Float.compare(state.getBlockHardness(world, pos), -1) == 0) {
-                block.onBlockHarvested(world, pos, state, player);
-                world.setBlockToAir(pos);
-                world.playEvent(null, 2001, pos, Block.getStateId(state));
-                block.breakBlock(world, pos, state);
-                world.spawnEntity(new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(block)));
+                breakBlock(world, pos, player);
             }
         }
         return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
@@ -240,18 +237,20 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             EnumFacing facing = player.getHorizontalFacing();
             boolean isEW = facing == EnumFacing.EAST | facing == EnumFacing.WEST;
 
-            IntStream.rangeClosed(-range, range).mapToObj(x -> IntStream.rangeClosed(-range, range).mapToObj(
-                    z -> IntStream.rangeClosed(-range, range).mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate
-                                                                                                                      // BlockPos(int,
-                                                                                                                      // int,
-                                                                                                                      // int)
-                                                                                                                      // from
-                                                                                                                      // three
-                                                                                                                      // IntStreams
-                    .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity()) // please gimme flatMapToObj
-                    .filter(b -> world.getBlockState(b).getBlock() == block) // filter block kind
-                    .sorted(Comparator.comparing(b -> pos.distanceSq(b))).limit(isOre(block) ? 128 : 9)
-                    .forEach(b -> breakBlock(world, b, player));
+            CompletableFuture.runAsync(() -> {
+                IntStream.rangeClosed(-range, range).mapToObj(x -> IntStream.rangeClosed(-range, range).mapToObj(
+                        z -> IntStream.rangeClosed(-range, range).mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate
+                                                                                                                        // BlockPos(int,
+                                                                                                                        // int,
+                                                                                                                        // int)
+                                                                                                                        // from
+                                                                                                                        // three
+                                                                                                                        // IntStreams
+                        .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity()) // please gimme flatMapToObj
+                        .filter(b -> world.getBlockState(b).getBlock() == block) // filter block kind
+                        .sorted(Comparator.comparing(b -> pos.distanceSq(b))).limit(isOre(block) ? 128 : 9)
+                        .forEach(b -> breakBlock(world, b, player));
+            });
             break;
         default:
             break;
@@ -289,11 +288,25 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         world.playEvent(null, 2001, position, Block.getStateId(state));
         world.setBlockToAir(position);
         block.breakBlock(world, position, state);
-        block.dropBlockAsItem(world, position, state, 0);
         MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
+        
+        if (block == Blocks.LIT_REDSTONE_ORE)
+        block = Blocks.REDSTONE_ORE;
+        // [Mekanism] Issues related BoundingBlock
+        // block.dropBlockAsItem(world, position, state, 0);
+        // world.spawnEntity(new EntityItem(world, position.getX(), position.getY(), position.getZ(), new ItemStack(block)));
+        
+        ItemStack stack = new ItemStack(block);
+        if (stack.isEmpty()) {
+            block.dropBlockAsItem(world, position, state, 0);
+        } else {
+            world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, stack));
+        }
     }
 
     private static boolean isOre(Block block) {
+        if (block == Blocks.LIT_REDSTONE_ORE)
+            return true;
         ItemStack itemStack = new ItemStack(block);
         if (itemStack.isEmpty())
             return false;
