@@ -22,8 +22,7 @@ public class ItemBedrockPickaxeTest {
     @Test
     public void testVeinModeNext() {
         assertEquals(VeinMode.MORE, VeinMode.NORMAL.next());
-        assertEquals(VeinMode.INSANE, VeinMode.MORE.next());
-        assertEquals(VeinMode.ALL, VeinMode.INSANE.next());
+        assertEquals(VeinMode.ALL, VeinMode.MORE.next());
         assertEquals(VeinMode.OFF, VeinMode.ALL.next());
         assertEquals(VeinMode.NORMAL, VeinMode.OFF.next());
     }
