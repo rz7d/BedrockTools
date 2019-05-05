@@ -294,7 +294,10 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     private static boolean isOre(Block block) {
-        return Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block))).mapToObj(OreDictionary::getOreName)
+        ItemStack itemStack = new ItemStack(block);
+        if (itemStack.isEmpty())
+            return false;
+        return Arrays.stream(OreDictionary.getOreIDs(itemStack)).mapToObj(OreDictionary::getOreName)
                 .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
     }
 
