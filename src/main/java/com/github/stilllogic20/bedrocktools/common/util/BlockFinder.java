@@ -14,16 +14,37 @@ public class BlockFinder {
 
     private static final EnumFacing[] FACINGS = EnumFacing.values();
 
-    private final Block target;
-
-    public BlockFinder(Block target) {
-        Objects.requireNonNull(target);
-        this.target = target;
+    public static boolean equals(Block found, Block finding) {
+        boolean equal = (found == finding);
+        if (finding == Blocks.REDSTONE_ORE || finding == Blocks.LIT_REDSTONE_ORE)
+            equal |= found == Blocks.REDSTONE_ORE || found == Blocks.LIT_REDSTONE_ORE;
+        return equal;
     }
 
-    public Set<BlockPos> find(int max, World world, BlockPos position) {
+    public static BlockFinder of(Block target, int max, World world, BlockPos origin) {
+        return new BlockFinder(
+            Objects.requireNonNull(target), 
+            Objects.requireNonNull(max),
+            Objects.requireNonNull(world), 
+            Objects.requireNonNull(origin)
+        );
+    }
+
+    private final Block target;
+    private final World world;
+    private final int max;
+    private final BlockPos origin;
+
+    private BlockFinder(Block target, int max, World world, BlockPos origin) {
+        this.target = target;
+        this.max = max;
+        this.world = world;
+        this.origin = origin;
+    }
+
+    public Set<BlockPos> find() {
         Set<BlockPos> found = new HashSet<>(max * FACINGS.length);
-        compute(found, max, world, position);
+        compute(found, max, world, origin);
         return found;
     }
 
@@ -36,12 +57,6 @@ public class BlockFinder {
                 compute(found, max, world, position.offset(facing));
             }
         }
-    }
-
-    private static boolean equals(Block found, Block finding) {
-        if (finding == Blocks.REDSTONE_ORE || finding == Blocks.LIT_REDSTONE_ORE)
-            return found == Blocks.REDSTONE_ORE || found == Blocks.LIT_REDSTONE_ORE;
-        return found == finding;
     }
 
 }

@@ -38,7 +38,7 @@ public class KeyBindings {
             ItemBedrockPickaxe.VeinMode newMode = pickaxe.getVeinMode(itemInMainHand).next();
             Messages.NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
             mc.player.sendMessage(new TextComponentString(
-                    String.format("[BedrockTools] %s: %s%s(%.0f)",
+                    String.format("[BedrockTools] %s: %s%s(%d)",
                             I18n.format("bedrocktools.item.tooltip.veinmode"),
                             TextFormatting.DARK_AQUA,
                             I18n.format("bedrocktools.mode." + newMode.name().toLowerCase()),

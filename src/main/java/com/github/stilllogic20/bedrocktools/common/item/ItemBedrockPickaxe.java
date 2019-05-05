@@ -1,9 +1,12 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
@@ -62,7 +65,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     public enum VeinMode {
-        NORMAL(10), MORE(20), ALL(Integer.MAX_VALUE), OFF(0);
+        NORMAL(3), MORE(5), ALL(-1), OFF(0);
 
         private final int range;
 
@@ -131,23 +134,15 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         MiningMode miningMode = getMiningMode(stack);
         VeinMode veinMode = getVeinMode(stack);
-        tooltip.add(
-                String.format("%s: %s%s",
-                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"),
-                        TextFormatting.BLUE,
-                        net.minecraft.client.resources.I18n
-                                .format("bedrocktools.mode." + miningMode.name().toLowerCase())));
-        tooltip.add(
-                String.format("%s: %s%.0f",
-                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"),
-                        TextFormatting.BLUE,
-                        miningMode.efficiency()));
-        tooltip.add(
-                String.format("%s: %s%s",
-                        net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"),
-                        TextFormatting.BLUE,
-                        net.minecraft.client.resources.I18n
-                                .format("bedrocktools.mode." + veinMode.name().toLowerCase())));
+        tooltip.add(String.format("%s: %s%s",
+                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"), TextFormatting.BLUE,
+                net.minecraft.client.resources.I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
+        tooltip.add(String.format("%s: %s%.0f",
+                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"), TextFormatting.BLUE,
+                miningMode.efficiency()));
+        tooltip.add(String.format("%s: %s%s",
+                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"), TextFormatting.BLUE,
+                net.minecraft.client.resources.I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
 
     }
 
@@ -185,22 +180,19 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
 
-            player.sendMessage(new TextComponentString(
-                    String.format("[BedrockTools] %s: %s%s(%.0f)",
-                            net.minecraft.util.text.translation.I18n
-                                    .translateToLocal("bedrocktools.item.tooltip.miningmode"),
-                            TextFormatting.BLUE,
-                            net.minecraft.util.text.translation.I18n
-                                    .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
-                            mode.efficiency)));
+            player.sendMessage(new TextComponentString(String.format("[BedrockTools] %s: %s%s(%.0f)",
+                    net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
+                    TextFormatting.BLUE, net.minecraft.util.text.translation.I18n
+                            .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+                    mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
-            EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing,
+            float hitX, float hitY, float hitZ) {
         if (world.isRemote)
             return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
@@ -224,27 +216,35 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (world.isRemote)
             return super.onBlockStartBreak(stack, pos, player);
         IBlockState state = world.getBlockState(pos);
-        if (getVeinMode(stack) == VeinMode.ALL) {
-            Block block = state.getBlock();
-            if (Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block)))
-                    .mapToObj(OreDictionary::getOreName)
-                    .anyMatch(name -> name.startsWith("ore")
-                            || name.equals("logWood")
-                            || name.equals("treeLeaves"))) {
-                Set<BlockPos> found = new BlockFinder(block).find(128, world, pos);
-                found
-                        .stream()
-                        .filter(p -> !Objects.equals(p, pos))
-                        .forEach(p -> {
-                            IBlockState s = world.getBlockState(p);
-                            Block b = s.getBlock();
-                            b.onBlockHarvested(world, p, state, player);
-                            world.playEvent(null, 2001, p, Block.getStateId(state));
-                            world.setBlockToAir(p);
-                            b.breakBlock(world, p, state);
-                            b.dropBlockAsItem(world, p, state, 0);
-                        });
+        VeinMode veinMode = getVeinMode(stack);
+        Block block = state.getBlock();
+        switch (veinMode) {
+        case OFF:
+            break;
+        case ALL:
+            Set<BlockPos> found = BlockFinder.of(block, 128, world, pos).find();
+            if (found.size() <= (isOre(block) ? 128 : 9)) {
+                found.stream().filter(p -> !Objects.equals(p, pos)).forEach(p -> breakBlock(world, p, player));
             }
+            break;
+        case NORMAL:
+        case MORE:
+            int range = (veinMode.range() - 1) / 2;
+            EnumFacing facing = player.getHorizontalFacing();
+            boolean isEW = facing == EnumFacing.EAST | facing == EnumFacing.WEST;
+
+            IntStream.rangeClosed(-range, range)
+                    .mapToObj(x -> IntStream.rangeClosed(-range, range)
+                            .mapToObj(z -> IntStream.rangeClosed(-range, range)
+                                .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate BlockPos(int, int, int) from three IntStreams
+                    .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity()) // please gimme flatMapToObj
+                    .filter(b -> world.getBlockState(b).getBlock() == block) // filter block kind
+                    .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
+                    .limit(isOre(block) ? 128 : 9)
+                    .forEach(b -> breakBlock(world, b, player));
+            break;
+        default:
+            break;
         }
         return super.onBlockStartBreak(stack, pos, player);
     }
@@ -270,6 +270,21 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (world.isRemote)
             return super.canDestroyBlockInCreative(world, pos, stack, player);
         return getMiningMode(stack) != MiningMode.OFF;
+    }
+
+    private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
+        IBlockState state = world.getBlockState(position);
+        Block block = state.getBlock();
+        block.onBlockHarvested(world, position, state, player);
+        world.playEvent(null, 2001, position, Block.getStateId(state));
+        world.setBlockToAir(position);
+        block.breakBlock(world, position, state);
+        block.dropBlockAsItem(world, position, state, 0);
+    }
+
+    private static boolean isOre(Block block) {
+        return Arrays.stream(OreDictionary.getOreIDs(new ItemStack(block))).mapToObj(OreDictionary::getOreName)
+                .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
     }
 
 }
