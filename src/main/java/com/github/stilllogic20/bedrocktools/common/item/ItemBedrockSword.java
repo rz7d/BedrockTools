@@ -2,8 +2,6 @@ package com.github.stilllogic20.bedrocktools.common.item;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 
