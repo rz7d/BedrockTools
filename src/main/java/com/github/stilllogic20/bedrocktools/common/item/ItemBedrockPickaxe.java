@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
+import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -42,14 +43,18 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
-    private static final float ATTACK_DAMAGE = 22F;
     private static final String NAME = "bedrock_pickaxe";
     private static final String MODE_KEY = "bedrocktools.pickaxe_mode";
     private static final String MINING_MODE_KEY = "efficiency";
     private static final String VEIN_MODE_KEY = "vein";
 
     static enum MiningMode {
-        NORMAL(20F), MIDDLE(12F), SLOW(8F), FAST(128F), INSANE(Float.MAX_VALUE), OFF(0F);
+        NORMAL(20F),
+        MIDDLE(12F),
+        SLOW(8F),
+        FAST(128F),
+        INSANE(Float.MAX_VALUE),
+        OFF(0F);
 
         private final float efficiency;
 
@@ -69,7 +74,10 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     public enum VeinMode {
-        NORMAL(3), MORE(5), ALL(-1), OFF(0);
+        NORMAL(3),
+        MORE(5),
+        ALL(-1),
+        OFF(0);
 
         private final int range;
 
@@ -88,45 +96,26 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     }
 
-    private static boolean hasTag(ItemStack item) {
-        final NBTTagCompound tagCompound = item.getTagCompound();
-        return tagCompound != null && tagCompound.hasKey(MODE_KEY);
-    }
-
-    private static NBTTagCompound getTag(ItemStack item) {
-        return item.getTagCompound().getCompoundTag(MODE_KEY);
-    }
-
-    private static void initTags(ItemStack item) {
-        if (item.getTagCompound() == null)
-            item.setTagCompound(new NBTTagCompound());
-        if (!item.getTagCompound().hasKey(MODE_KEY))
-            item.getTagCompound().setTag(MODE_KEY, new NBTTagCompound());
+    private static NBTAccess prepare(ItemStack item) {
+        final NBTAccess access = new NBTAccess(item).prepare();
+        access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
+        return access;
     }
 
     public MiningMode getMiningMode(@Nonnull ItemStack item) {
-        return hasTag(item) ? MiningMode.values()[getTag(item).getInteger(MINING_MODE_KEY)] : MiningMode.NORMAL;
+        return prepare(item).getEnum(MINING_MODE_KEY, MiningMode.values()).orElse(MiningMode.NORMAL);
     }
 
     public VeinMode getVeinMode(@Nonnull ItemStack item) {
-        if (!hasTag(item)) return VeinMode.OFF;
-        int index = getTag(item).getInteger(VEIN_MODE_KEY);
-        VeinMode[] values = VeinMode.values();
-        if (index >= values.length)
-            index = 0;
-        return values[index];
+        return prepare(item).getEnum(VEIN_MODE_KEY, VeinMode.values()).orElse(VeinMode.OFF);
     }
 
     public void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
-        initTags(item);
-        if (!item.getTagCompound().hasKey(MINING_MODE_KEY))
-            getTag(item).setInteger(MINING_MODE_KEY, miningMode.ordinal());
+        prepare(item).setEnum(MINING_MODE_KEY, miningMode);
     }
 
     public void setVeinMode(@Nonnull ItemStack item, @Nonnull VeinMode veinMode) {
-        initTags(item);
-        if (!item.getTagCompound().hasKey(VEIN_MODE_KEY))
-            getTag(item).setInteger(VEIN_MODE_KEY, veinMode.ordinal());
+        prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
     public ItemBedrockPickaxe() {
@@ -169,11 +158,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public boolean hitEntity(ItemStack item, EntityLivingBase target, EntityLivingBase attacker) {
+        final float damage = toolMaterial.getAttackDamage();
         if (attacker instanceof EntityPlayer) {
-            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, ATTACK_DAMAGE * 0.9F);
-            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), ATTACK_DAMAGE * 0.1F);
+            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, damage * 0.9F);
+            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), damage * 0.1F);
         } else {
-            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), ATTACK_DAMAGE);
+            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), damage);
         }
         return false;
     }
@@ -228,7 +218,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         case ALL:
             Set<BlockPos> found = BlockFinder.of(block, 128, world, pos).find();
             if (found.size() <= (isOre(block) ? 128 : 9)) {
-                found.stream().filter(p -> !Objects.equals(p, pos)).forEach(p -> breakBlock(world, p, player));
+                found.stream().forEach(p -> breakBlock(world, p, player));
             }
             break;
         case NORMAL:
@@ -239,15 +229,13 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
             CompletableFuture.runAsync(() -> {
                 IntStream.rangeClosed(-range, range).mapToObj(x -> IntStream.rangeClosed(-range, range).mapToObj(
-                        z -> IntStream.rangeClosed(-range, range).mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x)))) // Generate
-                                                                                                                        // BlockPos(int,
-                                                                                                                        // int,
-                                                                                                                        // int)
-                                                                                                                        // from
-                                                                                                                        // three
-                                                                                                                        // IntStreams
-                        .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity()) // please gimme flatMapToObj
-                        .filter(b -> world.getBlockState(b).getBlock() == block) // filter block kind
+                        z -> IntStream.rangeClosed(-range, range)
+                                // Generate BlockPos(int, int, int) from three IntStreams
+                                .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x))))
+                        // please gimme flatMapToObj
+                        .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity())
+                        // filter block type
+                        .filter(b -> world.getBlockState(b).getBlock() == block)
                         .sorted(Comparator.comparing(b -> pos.distanceSq(b))).limit(isOre(block) ? 128 : 9)
                         .forEach(b -> breakBlock(world, b, player));
             });
@@ -256,12 +244,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             break;
         }
         return super.onBlockStartBreak(stack, pos, player);
-    }
-
-    @Override
-    public boolean onBlockDestroyed(ItemStack stack, World world, IBlockState state, BlockPos pos,
-            EntityLivingBase entity) {
-        return super.onBlockDestroyed(stack, world, state, pos, entity);
     }
 
     @Override
@@ -289,13 +271,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         world.setBlockToAir(position);
         block.breakBlock(world, position, state);
         MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
-        
+
         if (block == Blocks.LIT_REDSTONE_ORE)
-        block = Blocks.REDSTONE_ORE;
+            block = Blocks.REDSTONE_ORE;
         // [Mekanism] Issues related BoundingBlock
         // block.dropBlockAsItem(world, position, state, 0);
-        // world.spawnEntity(new EntityItem(world, position.getX(), position.getY(), position.getZ(), new ItemStack(block)));
-        
+
         ItemStack stack = new ItemStack(block);
         if (stack.isEmpty()) {
             block.dropBlockAsItem(world, position, state, 0);
