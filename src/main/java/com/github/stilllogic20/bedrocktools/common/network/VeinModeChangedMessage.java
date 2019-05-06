@@ -3,6 +3,7 @@ package com.github.stilllogic20.bedrocktools.common.network;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinModeChangedMessage, IMessage> {
 
+    @Nullable
     private VeinMode mode;
 
     public VeinModeChangedMessage() {}
@@ -25,6 +27,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         this.mode = mode;
     }
 
+    @Nullable
     public VeinMode getMode() {
         return mode;
     }
