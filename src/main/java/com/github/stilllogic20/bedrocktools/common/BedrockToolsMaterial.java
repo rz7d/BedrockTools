@@ -7,7 +7,7 @@ public class BedrockToolsMaterial {
 
     public static final ToolMaterial BEDROCK;
     static {
-        BEDROCK = EnumHelper.addToolMaterial("BEDROCK", -1, -1, 20, 30, 5);
+        BEDROCK = EnumHelper.addToolMaterial("BEDROCK", -1, -1, 18, 22, 5);
     }
 
 }
