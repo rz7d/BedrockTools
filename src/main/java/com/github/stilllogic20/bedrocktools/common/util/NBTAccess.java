@@ -60,8 +60,6 @@ public class NBTAccess {
 
     @Nonnull
     public <T extends Enum<T>> boolean setEnum(String key, @Nonnull T value) {
-        if (!has(key))
-            return false;
         tags.setInteger(key, value.ordinal());
         return true;
     }
