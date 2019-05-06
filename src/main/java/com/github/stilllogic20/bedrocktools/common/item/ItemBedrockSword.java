@@ -32,7 +32,8 @@ public class ItemBedrockSword extends ItemSword {
         setTranslationKey(NAME);
         setRegistryName(BedrockToolsMod.MODID, NAME);
         this.addPropertyOverride(new ResourceLocation("blocking"),
-                (stack, worldIn, entityIn) -> entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F);
+                (stack, worldIn, entityIn) -> entityIn != null && entityIn.isHandActive()
+                        && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F);
     }
 
     @Override
@@ -44,14 +45,15 @@ public class ItemBedrockSword extends ItemSword {
 
     @Override
     public boolean hitEntity(ItemStack item, EntityLivingBase target, EntityLivingBase attacker) {
+        final float damage = getAttackDamage();
         if (attacker instanceof EntityPlayer) {
-            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), getAttackDamage() * 0.5F);
-            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, getAttackDamage() * 0.8F);
             if (!(target instanceof EntityPlayer)) {
-                target.setHealth(target.getHealth() * 0.01F);
+                target.setHealth(target.getHealth() * 0.09F);
             }
+            target.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) attacker), damage * 0.75F);
+            target.attackEntityFrom(DamageSource.OUT_OF_WORLD, damage * 0.75F);
         } else {
-            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), getAttackDamage());
+            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), damage);
         }
         return false;
     }
