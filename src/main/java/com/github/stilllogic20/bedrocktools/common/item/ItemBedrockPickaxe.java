@@ -223,19 +223,15 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         case NORMAL:
         case MORE:
             int range = (veinMode.range() - 1) / 2;
-            EnumFacing facing = player.getHorizontalFacing();
-            boolean isEW = facing == EnumFacing.EAST | facing == EnumFacing.WEST;
-
             CompletableFuture.runAsync(() -> {
                 // Generate BlockPos(int, int, int) from three IntStreams
                 IntStream.rangeClosed(-range, range)
                         .mapToObj(x -> IntStream.rangeClosed(-range, range)
                                 .mapToObj(z -> IntStream.rangeClosed(-range, range)
-                                        .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x))))
-                        // please gimme flatMapToObj
+                                        .mapToObj(y -> pos.add(x, y, z))))
+                        .parallel()
                         .flatMap(UnaryOperator.identity())
                         .flatMap(UnaryOperator.identity())
-                        // filter block type
                         .filter(b -> world.getBlockState(b).getBlock() == block)
                         .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
                         .limit(isOre(block) ? 128 : 9)
