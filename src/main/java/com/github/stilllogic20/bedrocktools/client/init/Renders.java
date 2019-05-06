@@ -1,5 +1,8 @@
 package com.github.stilllogic20.bedrocktools.client.init;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.github.stilllogic20.bedrocktools.common.init.Items;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -21,14 +24,14 @@ public final class Renders {
     private Renders() {}
 
     @SubscribeEvent
-    public void registerModels(ModelRegistryEvent event) {
+    public void registerModels(@Nullable ModelRegistryEvent event) {
         registerToRender(Items.BEDROCK_PICKAXE);
         registerToRender(Items.BEDROCK_SWORD);
         registerToRender(Items.PORTAL);
         registerToRender(Items.END_PORTAL);
     }
 
-    private static void registerToRender(Item item) {
+    private static void registerToRender(@Nonnull Item item) {
         assert item != null;
         ModelLoader.setCustomModelResourceLocation(item, 0,
                 new ModelResourceLocation(item.getRegistryName(), "inventory"));

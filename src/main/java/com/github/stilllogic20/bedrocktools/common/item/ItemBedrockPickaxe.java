@@ -7,12 +7,14 @@ import static net.minecraft.util.text.TextFormatting.GRAY;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
@@ -65,9 +67,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             this.efficiency = efficiency;
         }
 
+        @Nonnull
         public MiningMode next() {
             final MiningMode[] values = values();
-            return values[(ordinal() + 1) % values.length];
+            final MiningMode next = values[(ordinal() + 1) % values.length];
+            Objects.requireNonNull(next);
+            return next;
         }
 
         public float efficiency() {
@@ -88,9 +93,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             this.range = range;
         }
 
+        @Nonnull
         public VeinMode next() {
             final VeinMode[] values = values();
-            return values[(ordinal() + 1) % values.length];
+            final VeinMode next = values[(ordinal() + 1) % values.length];
+            Objects.requireNonNull(next);
+            return next;
         }
 
         public int range() {
@@ -99,25 +107,29 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     }
 
-    private static NBTAccess prepare(ItemStack item) {
+    @Nonnull
+    private static NBTAccess prepare(@Nonnull ItemStack item) {
+        @Nonnull
         final NBTAccess access = new NBTAccess(item).prepare();
         access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
         return access;
     }
 
-    public MiningMode getMiningMode(@Nonnull ItemStack item) {
+    @Nonnull
+    public static MiningMode getMiningMode(@Nonnull ItemStack item) {
         return prepare(item).getEnum(MINING_MODE_KEY, MiningMode.values()).orElse(MiningMode.NORMAL);
     }
 
-    public VeinMode getVeinMode(@Nonnull ItemStack item) {
+    @Nonnull
+    public static VeinMode getVeinMode(@Nonnull ItemStack item) {
         return prepare(item).getEnum(VEIN_MODE_KEY, VeinMode.values()).orElse(VeinMode.OFF);
     }
 
-    public void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
+    public static void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
         prepare(item).setEnum(MINING_MODE_KEY, miningMode);
     }
 
-    public void setVeinMode(@Nonnull ItemStack item, @Nonnull VeinMode veinMode) {
+    public static void setVeinMode(@Nonnull ItemStack item, @Nonnull VeinMode veinMode) {
         prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
@@ -130,21 +142,21 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, world, tooltip, flag);
-
-        MiningMode miningMode = getMiningMode(stack);
-        VeinMode veinMode = getVeinMode(stack);
-        tooltip.add(String.format("%s: %s%s",
-                I18n.format("bedrocktools.item.tooltip.miningmode"), BLUE,
-                I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
-        tooltip.add(String.format("%s: %s%.0f",
-                I18n.format("bedrocktools.item.tooltip.efficiency"), BLUE,
-                miningMode.efficiency()));
-        tooltip.add(String.format("%s: %s%s",
-                I18n.format("bedrocktools.item.tooltip.veinmode"), BLUE,
-                I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
-
+        if (stack != null) {
+            MiningMode miningMode = getMiningMode(stack);
+            VeinMode veinMode = getVeinMode(stack);
+            tooltip.add(String.format("%s: %s%s",
+                    I18n.format("bedrocktools.item.tooltip.miningmode"), BLUE,
+                    I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
+            tooltip.add(String.format("%s: %s%.0f",
+                    I18n.format("bedrocktools.item.tooltip.efficiency"), BLUE,
+                    miningMode.efficiency()));
+            tooltip.add(String.format("%s: %s%s",
+                    I18n.format("bedrocktools.item.tooltip.veinmode"), BLUE,
+                    I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
+        }
     }
 
     @Override
@@ -153,10 +165,13 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     @Override
-    public float getDestroySpeed(ItemStack item, IBlockState blockState) {
-        final MiningMode mode = this.getMiningMode(item);
-        assert mode != null;
-        return mode.efficiency();
+    public float getDestroySpeed(ItemStack stack, IBlockState state) {
+        if (stack != null) {
+            final MiningMode mode = getMiningMode(stack);
+            assert mode != null;
+            return mode.efficiency();
+        }
+        return super.getDestroySpeed(stack, state);
     }
 
     @Override
@@ -177,14 +192,15 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (world.isRemote)
             return super.onItemRightClick(world, player, hand);
 
-        ItemStack item = player.getHeldItem(hand);
-        if (player.isSneaking()) {
+        final ItemStack item = player.getHeldItem(hand);
+        if (item != null && player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
             player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s] %s: %s%s(%.0f)",
                     net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
                     DARK_GRAY, GRAY, DARK_GRAY, BLUE,
-                    net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+                    net.minecraft.util.text.translation.I18n
+                            .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
                     mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
@@ -208,6 +224,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public boolean onBlockStartBreak(ItemStack stack, BlockPos pos, EntityPlayer player) {
+        if (stack == null)
+            return super.onBlockStartBreak(stack, pos, player);
         World world = player.world;
         if (world.isRemote)
             return super.onBlockStartBreak(stack, pos, player);
@@ -261,7 +279,9 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
         if (world.isRemote)
             return super.canDestroyBlockInCreative(world, pos, stack, player);
-        return getMiningMode(stack) != MiningMode.OFF;
+        if (stack != null)
+            return getMiningMode(stack) != MiningMode.OFF;
+        return super.canDestroyBlockInCreative(world, pos, stack, player);
     }
 
     private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
@@ -284,13 +304,15 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         }
     }
 
-    private static boolean isOre(Block block) {
+    private static boolean isOre(@Nullable Block block) {
+        if (block == null)
+            return false;
         if (block == Blocks.LIT_REDSTONE_ORE)
             return true;
-        ItemStack itemStack = new ItemStack(block);
-        if (itemStack.isEmpty())
+        ItemStack stack = new ItemStack(block);
+        if (stack.isEmpty())
             return false;
-        return Arrays.stream(OreDictionary.getOreIDs(itemStack)).mapToObj(OreDictionary::getOreName)
+        return Arrays.stream(OreDictionary.getOreIDs(stack)).mapToObj(OreDictionary::getOreName)
                 .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
     }
 

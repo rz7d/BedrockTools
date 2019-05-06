@@ -1,6 +1,9 @@
 package com.github.stilllogic20.bedrocktools.common.network;
 
-import com.github.stilllogic20.bedrocktools.common.init.Items;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
 
@@ -18,7 +21,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
 
     public VeinModeChangedMessage() {}
 
-    public VeinModeChangedMessage(VeinMode mode) {
+    public VeinModeChangedMessage(@Nonnull VeinMode mode) {
         this.mode = mode;
     }
 
@@ -28,11 +31,13 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
 
     @Override
     public void fromBytes(ByteBuf buf) {
+        Objects.requireNonNull(buf);
         mode = VeinMode.values()[buf.readInt()];
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
+        Objects.requireNonNull(buf);
         buf.writeInt(mode.ordinal());
     }
 
@@ -40,9 +45,9 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
     public IMessage onMessage(VeinModeChangedMessage message, MessageContext ctx) {
         assert ctx.side == Side.SERVER;
         EntityPlayer player = ctx.getServerHandler().player;
-        ItemStack itemInMainHand = player.getHeldItemMainhand();
-        if (itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
-            Items.BEDROCK_PICKAXE.setVeinMode(itemInMainHand, message.mode);
+        ItemStack stack = player.getHeldItemMainhand();
+        if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
+            ItemBedrockPickaxe.setVeinMode(stack, message.mode);
         }
         return null;
     }

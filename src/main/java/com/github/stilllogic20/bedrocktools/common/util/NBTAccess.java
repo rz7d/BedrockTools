@@ -2,13 +2,18 @@ package com.github.stilllogic20.bedrocktools.common.util;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class NBTAccess {
 
     @Nonnull
@@ -41,41 +46,47 @@ public class NBTAccess {
         return this;
     }
 
-    @Nonnull
-    public Optional<? extends NBTAccess> resolve(String key) {
-        return has(key)
+    public Optional<? extends NBTAccess> resolve(@Nullable String key) {
+        final NBTTagCompound tags = this.tags;
+        return tags != null && has(key)
                 ? Optional.of(new NBTAccess(item, tags.getCompoundTag(key)))
                 : Optional.empty();
     }
 
     @Nonnull
-    public <T extends Enum<T>> Optional<T> getEnum(String key, @Nonnull T[] values) {
+    public <T extends Enum<T>> Optional<T> getEnum(@Nullable String key, @Nonnull T[] values) {
         if (!has(key))
             return Optional.empty();
-        int index = getInt(key);
+        int index = getInt(key).orElse(0);
         if (index >= values.length)
             index = 0;
         return Optional.of(values[index]);
     }
 
-    @Nonnull
-    public <T extends Enum<T>> boolean setEnum(String key, @Nonnull T value) {
+    public <T extends Enum<T>> boolean setEnum(@Nullable String key, @Nonnull T value) {
+        final NBTTagCompound tags = this.tags;
+        if (tags == null)
+            return false;
         tags.setInteger(key, value.ordinal());
         return true;
     }
 
-    public int getInt(String key) {
-        return has(key) ? tags.getInteger(key) : 0;
+    public OptionalInt getInt(@Nullable String key) {
+        final NBTTagCompound tags = this.tags;
+        if (tags == null)
+            return OptionalInt.empty();
+        return has(key) ? OptionalInt.of(tags.getInteger(key)) : OptionalInt.empty();
     }
 
-    public boolean has(String key) {
+    public boolean has(@Nullable String key) {
         final NBTTagCompound tags = this.tags;
         return tags != null && tags.hasKey(key);
     }
 
-    public boolean compareAndSet(String key, NBTTagCompound expected, NBTTagCompound value) {
+    public boolean compareAndSet(@Nullable String key, @Nullable NBTTagCompound expected,
+            @Nullable NBTTagCompound value) {
         final NBTTagCompound tags = this.tags;
-        if (Objects.equals(tags.getCompoundTag(key), expected)) {
+        if (tags != null && Objects.equals(tags.getCompoundTag(key), expected)) {
             tags.setTag(key, value);
             return true;
         }

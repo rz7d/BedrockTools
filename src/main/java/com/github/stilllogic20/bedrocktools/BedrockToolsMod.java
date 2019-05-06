@@ -1,5 +1,7 @@
 package com.github.stilllogic20.bedrocktools;
 
+import javax.annotation.Nonnull;
+
 import com.github.stilllogic20.bedrocktools.common.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
@@ -15,7 +17,7 @@ public final class BedrockToolsMod {
     public static CommonProxy proxy;
 
     @Mod.EventHandler
-    public void construct(FMLConstructionEvent event) {
+    public void construct(@Nonnull FMLConstructionEvent event) {
         proxy.construct(event);
     }
 

@@ -1,5 +1,7 @@
 package com.github.stilllogic20.bedrocktools.common.init;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -17,7 +19,7 @@ public final class Recipes {
     private Recipes() {}
 
     @SubscribeEvent
-    public void registerRecipes(RegistryEvent.Register<IRecipe> event) {
+    public void registerRecipes(@Nullable RegistryEvent.Register<IRecipe> event) {
         GameRegistry.addSmelting(Items.BEDROCK_PICKAXE, new ItemStack(Blocks.BEDROCK, 3), 10F);
         GameRegistry.addSmelting(Items.BEDROCK_SWORD, new ItemStack(Blocks.BEDROCK, 2), 10F);
     }

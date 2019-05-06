@@ -1,8 +1,10 @@
 package com.github.stilllogic20.bedrocktools.client.init;
 
-import com.github.stilllogic20.bedrocktools.common.init.Items;
+import javax.annotation.Nonnull;
+
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
+import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
 import com.github.stilllogic20.bedrocktools.common.network.VeinModeChangedMessage;
 
 import net.minecraft.client.Minecraft;
@@ -21,11 +23,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class KeyBindings {
 
-    public static final KeyBinding keyToggleVein = new KeyBinding(
+    public static final KeyBinding KEY_TOGGLE_VEIN = new KeyBinding(
             "bedrocktools.keybinding.togglevein", -98, "BedrockTools");
 
     public static void init() {
-        ClientRegistry.registerKeyBinding(keyToggleVein);
+        ClientRegistry.registerKeyBinding(KEY_TOGGLE_VEIN);
         MinecraftForge.EVENT_BUS.register(new KeyBindings());
     }
 
@@ -34,13 +36,12 @@ public class KeyBindings {
     private KeyBindings() {}
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput(@Nonnull InputEvent.KeyInputEvent event) {
         final ItemStack itemInMainHand = mc.player.getHeldItemMainhand();
-        if (keyToggleVein.isPressed()
+        if (KEY_TOGGLE_VEIN.isPressed()
                 && mc.player.isSneaking()
                 && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
-            ItemBedrockPickaxe pickaxe = Items.BEDROCK_PICKAXE;
-            ItemBedrockPickaxe.VeinMode newMode = pickaxe.getVeinMode(itemInMainHand).next();
+            VeinMode newMode = ItemBedrockPickaxe.getVeinMode(itemInMainHand).next();
             Messages.NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
             mc.player.sendMessage(new TextComponentString(
                     String.format("[BedrockTools] %s: %s%s(%d)",

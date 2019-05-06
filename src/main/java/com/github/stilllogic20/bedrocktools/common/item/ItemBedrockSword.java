@@ -2,6 +2,8 @@ package com.github.stilllogic20.bedrocktools.common.item;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 
@@ -38,7 +40,7 @@ public class ItemBedrockSword extends ItemSword {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.add(I18n.format("bedrocktools.item.tooltip.blockable"));
     }
@@ -65,7 +67,7 @@ public class ItemBedrockSword extends ItemSword {
 
     @Override
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
-        return false;
+        return true;
     }
 
     @Override
