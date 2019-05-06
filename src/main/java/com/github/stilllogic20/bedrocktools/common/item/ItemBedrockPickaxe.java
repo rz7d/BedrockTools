@@ -4,7 +4,6 @@ import static net.minecraft.util.text.TextFormatting.BLUE;
 import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +43,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
@@ -237,7 +235,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             break;
         case ALL:
             Set<BlockPos> found = BlockFinder.of(block, 128, world, pos).find();
-            if (found.size() <= (isOre(block) ? 128 : 9)) {
+            if (found.size() <= (BlockFinder.isOre(block) ? 128 : 9)) {
                 found.stream().forEach(p -> breakBlock(world, p, player));
             }
             break;
@@ -255,7 +253,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                         .flatMap(UnaryOperator.identity())
                         .filter(b -> world.getBlockState(b).getBlock() == block)
                         .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
-                        .limit(isOre(block) ? 128 : 9)
+                        .limit(BlockFinder.isOre(block) ? 128 : 9)
                         .forEach(b -> breakBlock(world, b, player));
             });
             break;
@@ -302,18 +300,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         } else {
             world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, stack));
         }
-    }
-
-    private static boolean isOre(@Nullable Block block) {
-        if (block == null)
-            return false;
-        if (block == Blocks.LIT_REDSTONE_ORE)
-            return true;
-        ItemStack stack = new ItemStack(block);
-        if (stack.isEmpty())
-            return false;
-        return Arrays.stream(OreDictionary.getOreIDs(stack)).mapToObj(OreDictionary::getOreName)
-                .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
     }
 
 }
