@@ -16,8 +16,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
 
     private VeinMode mode;
 
-    public VeinModeChangedMessage() {
-    }
+    public VeinModeChangedMessage() {}
 
     public VeinModeChangedMessage(VeinMode mode) {
         this.mode = mode;

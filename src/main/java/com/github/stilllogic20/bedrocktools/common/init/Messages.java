@@ -13,4 +13,6 @@ public class Messages {
         NETWORK.registerMessage(VeinModeChangedMessage.class, VeinModeChangedMessage.class, 0, Side.SERVER);
     }
 
+    private Messages() {}
+
 }

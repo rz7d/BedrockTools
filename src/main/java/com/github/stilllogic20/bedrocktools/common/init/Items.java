@@ -6,6 +6,7 @@ import com.github.stilllogic20.bedrocktools.common.item.ItemEndPortal;
 import com.github.stilllogic20.bedrocktools.common.item.ItemPortal;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -18,12 +19,18 @@ public final class Items {
     public static final Item PORTAL;
     public static final Item END_PORTAL;
 
+    public static void init() {
+        MinecraftForge.EVENT_BUS.register(new Items());
+    }
+
     static {
         BEDROCK_PICKAXE = new ItemBedrockPickaxe();
         BEDROCK_SWORD = new ItemBedrockSword();
         PORTAL = new ItemPortal();
         END_PORTAL = new ItemEndPortal();
     }
+
+    private Items() {}
 
     @SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event) {

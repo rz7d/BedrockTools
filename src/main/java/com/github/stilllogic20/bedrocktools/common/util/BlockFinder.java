@@ -23,11 +23,10 @@ public class BlockFinder {
 
     public static BlockFinder of(Block target, int max, World world, BlockPos origin) {
         return new BlockFinder(
-            Objects.requireNonNull(target), 
-            Objects.requireNonNull(max),
-            Objects.requireNonNull(world), 
-            Objects.requireNonNull(origin)
-        );
+                Objects.requireNonNull(target),
+                Objects.requireNonNull(max),
+                Objects.requireNonNull(world),
+                Objects.requireNonNull(origin));
     }
 
     private final Block target;

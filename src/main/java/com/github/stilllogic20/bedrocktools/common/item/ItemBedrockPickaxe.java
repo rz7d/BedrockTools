@@ -3,7 +3,6 @@ package com.github.stilllogic20.bedrocktools.common.item;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
@@ -228,15 +227,18 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             boolean isEW = facing == EnumFacing.EAST | facing == EnumFacing.WEST;
 
             CompletableFuture.runAsync(() -> {
-                IntStream.rangeClosed(-range, range).mapToObj(x -> IntStream.rangeClosed(-range, range).mapToObj(
-                        z -> IntStream.rangeClosed(-range, range)
-                                // Generate BlockPos(int, int, int) from three IntStreams
-                                .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x))))
+                // Generate BlockPos(int, int, int) from three IntStreams
+                IntStream.rangeClosed(-range, range)
+                        .mapToObj(x -> IntStream.rangeClosed(-range, range)
+                                .mapToObj(z -> IntStream.rangeClosed(-range, range)
+                                        .mapToObj(y -> pos.add(isEW ? x : z, y, isEW ? z : x))))
                         // please gimme flatMapToObj
-                        .flatMap(UnaryOperator.identity()).flatMap(UnaryOperator.identity())
+                        .flatMap(UnaryOperator.identity())
+                        .flatMap(UnaryOperator.identity())
                         // filter block type
                         .filter(b -> world.getBlockState(b).getBlock() == block)
-                        .sorted(Comparator.comparing(b -> pos.distanceSq(b))).limit(isOre(block) ? 128 : 9)
+                        .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
+                        .limit(isOre(block) ? 128 : 9)
                         .forEach(b -> breakBlock(world, b, player));
             });
             break;

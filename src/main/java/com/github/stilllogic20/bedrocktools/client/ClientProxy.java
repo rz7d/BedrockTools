@@ -1,6 +1,6 @@
 package com.github.stilllogic20.bedrocktools.client;
 
-import com.github.stilllogic20.bedrocktools.client.init.CreativeTabs;
+import com.github.stilllogic20.bedrocktools.client.init.ModCreativeTabs;
 import com.github.stilllogic20.bedrocktools.client.init.KeyBindings;
 import com.github.stilllogic20.bedrocktools.client.init.Renders;
 import com.github.stilllogic20.bedrocktools.common.CommonProxy;
@@ -16,7 +16,7 @@ public class ClientProxy extends CommonProxy {
     public void construct(FMLConstructionEvent event) {
         super.construct(event);
         Renders.init();
-        CreativeTabs.init();
+        ModCreativeTabs.init();
         KeyBindings.init();
     }
 

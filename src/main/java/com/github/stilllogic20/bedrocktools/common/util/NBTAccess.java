@@ -13,6 +13,7 @@ public class NBTAccess {
 
     @Nonnull
     private final ItemStack item;
+
     @Nullable
     private final NBTTagCompound tags;
 
@@ -27,6 +28,7 @@ public class NBTAccess {
 
     @Nonnull
     public NBTAccess resetNBT() {
+        final ItemStack item = this.item;
         final NBTTagCompound nbt = new NBTTagCompound();
         item.setTagCompound(nbt);
         return new NBTAccess(item, nbt);
@@ -69,10 +71,12 @@ public class NBTAccess {
     }
 
     public boolean has(String key) {
+        final NBTTagCompound tags = this.tags;
         return tags != null && tags.hasKey(key);
     }
 
     public boolean compareAndSet(String key, NBTTagCompound expected, NBTTagCompound value) {
+        final NBTTagCompound tags = this.tags;
         if (Objects.equals(tags.getCompoundTag(key), expected)) {
             tags.setTag(key, value);
             return true;

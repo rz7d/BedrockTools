@@ -1,7 +1,5 @@
 package com.github.stilllogic20.bedrocktools.client.init;
 
-import java.util.Objects;
-
 import com.github.stilllogic20.bedrocktools.common.init.Items;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -20,6 +18,8 @@ public final class Renders {
         MinecraftForge.EVENT_BUS.register(new Renders());
     }
 
+    private Renders() {}
+
     @SubscribeEvent
     public void registerModels(ModelRegistryEvent event) {
         registerToRender(Items.BEDROCK_PICKAXE);
@@ -29,7 +29,7 @@ public final class Renders {
     }
 
     private static void registerToRender(Item item) {
-        Objects.requireNonNull(item);
+        assert item != null;
         ModelLoader.setCustomModelResourceLocation(item, 0,
                 new ModelResourceLocation(item.getRegistryName(), "inventory"));
     }
