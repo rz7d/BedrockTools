@@ -275,7 +275,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         // [Mekanism] Issues related BoundingBlock
         // block.dropBlockAsItem(world, position, state, 0);
 
-        ItemStack stack = new ItemStack(block);
+        ItemStack stack = new ItemStack(block, 1, block.getMetaFromState(state));
         if (stack.isEmpty()) {
             block.dropBlockAsItem(world, position, state, 0);
         } else {
