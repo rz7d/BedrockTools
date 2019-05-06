@@ -1,5 +1,9 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
+import static net.minecraft.util.text.TextFormatting.BLUE;
+import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
+import static net.minecraft.util.text.TextFormatting.GRAY;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +21,7 @@ import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -32,7 +37,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
@@ -132,14 +136,14 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         MiningMode miningMode = getMiningMode(stack);
         VeinMode veinMode = getVeinMode(stack);
         tooltip.add(String.format("%s: %s%s",
-                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.miningmode"), TextFormatting.BLUE,
-                net.minecraft.client.resources.I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
+                I18n.format("bedrocktools.item.tooltip.miningmode"), BLUE,
+                I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
         tooltip.add(String.format("%s: %s%.0f",
-                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.efficiency"), TextFormatting.BLUE,
+                I18n.format("bedrocktools.item.tooltip.efficiency"), BLUE,
                 miningMode.efficiency()));
         tooltip.add(String.format("%s: %s%s",
-                net.minecraft.client.resources.I18n.format("bedrocktools.item.tooltip.veinmode"), TextFormatting.BLUE,
-                net.minecraft.client.resources.I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
+                I18n.format("bedrocktools.item.tooltip.veinmode"), BLUE,
+                I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
 
     }
 
@@ -177,11 +181,10 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
-
-            player.sendMessage(new TextComponentString(String.format("[BedrockTools] %s: %s%s(%.0f)",
+            player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s] %s: %s%s(%.0f)",
                     net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
-                    TextFormatting.BLUE, net.minecraft.util.text.translation.I18n
-                            .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+                    DARK_GRAY, GRAY, DARK_GRAY, BLUE,
+                    net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
                     mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
@@ -272,8 +275,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         if (block == Blocks.LIT_REDSTONE_ORE)
             block = Blocks.REDSTONE_ORE;
-        // [Mekanism] Issues related BoundingBlock
-        // block.dropBlockAsItem(world, position, state, 0);
 
         ItemStack stack = new ItemStack(block, 1, block.getMetaFromState(state));
         if (stack.isEmpty()) {
