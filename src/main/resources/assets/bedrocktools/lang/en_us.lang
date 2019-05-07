@@ -7,6 +7,7 @@ bedrocktools.item.tooltip.efficiency=Efficiency
 bedrocktools.item.tooltip.miningmode=Mining Mode
 bedrocktools.item.tooltip.vein=Vein
 bedrocktools.item.tooltip.veinmode=Vein Mode
+bedrocktools.item.tooltip.weaponmode=Weapon Mode
 
 bedrocktools.mode.normal=Normal
 bedrocktools.mode.middle=Middle
@@ -16,7 +17,9 @@ bedrocktools.mode.insane=Insane
 bedrocktools.mode.off=Off
 bedrocktools.mode.more=More
 bedrocktools.mode.all=All
-
-bedrocktools.item.tooltip.blockable=Blockable
+bedrocktools.mode.critical_attack=(WIP) Critical Attack
+bedrocktools.mode.ranged=(WIP) Ranged Attack
+bedrocktools.mode.shield=Instant Shield
+bedrocktools.mode.none=None
 
 bedrocktools.keybinding.togglevein=Toggle vein mode

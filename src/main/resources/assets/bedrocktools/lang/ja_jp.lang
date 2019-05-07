@@ -7,6 +7,7 @@ bedrocktools.item.tooltip.efficiency=採掘速度
 bedrocktools.item.tooltip.miningmode=採掘モード
 bedrocktools.item.tooltip.vein=一括破壊
 bedrocktools.item.tooltip.veinmode=一括破壊モード
+bedrocktools.item.tooltip.weaponmode=武器モード
 
 bedrocktools.mode.normal=通常
 bedrocktools.mode.middle=中程度
@@ -16,7 +17,9 @@ bedrocktools.mode.insane=狂気
 bedrocktools.mode.off=オフ
 bedrocktools.mode.more=多め
 bedrocktools.mode.all=すべて
+bedrocktools.mode.critical_attack=致命傷 (未実装)
+bedrocktools.mode.ranged=範囲攻撃 (未実装)
+bedrocktools.mode.shield=防御
+bedrocktools.mode.none=なし
 
-bedrocktools.item.tooltip.blockable=ガード可能
-
-bedrocktools.keybinding.togglevein=Veinモード切り替え
+bedrocktools.keybinding.togglevein=一括破壊モード切り替え
