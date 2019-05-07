@@ -235,8 +235,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         case OFF:
             break;
         case ALL:
-            Set<BlockPos> found = BlockFinder.of(block, 128, world, pos).find();
-            if (found.size() <= (BlockFinder.isOre(block) ? 128 : 9)) {
+            Set<BlockPos> found = BlockFinder.of(block, 127, world, pos).find();
+            if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
                 found.stream().forEach(p -> breakBlock(world, p, player));
             }
             break;
@@ -254,7 +254,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                         .flatMap(UnaryOperator.identity())
                         .filter(b -> world.getBlockState(b).getBlock() == block)
                         .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
-                        .limit(BlockFinder.isOre(block) ? 128 : 9)
+                        .limit(BlockFinder.isOre(block) ? 127 : 27)
                         .forEach(b -> breakBlock(world, b, player));
             });
             break;
@@ -284,6 +284,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
+        if (world.isRemote)
+            return;
         IBlockState state = world.getBlockState(position);
         Block block = state.getBlock();
         block.onBlockHarvested(world, position, state, player);
@@ -299,7 +301,9 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (stack.isEmpty()) {
             block.dropBlockAsItem(world, position, state, 0);
         } else {
-            world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, stack));
+            EntityItem entity = new EntityItem(world, player.posX, player.posY, player.posZ, stack);
+            entity.setNoPickupDelay();
+            world.spawnEntity(entity);
         }
     }
 
