@@ -288,9 +288,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        if (enchantment == Enchantments.SILK_TOUCH || enchantment == Enchantments.FORTUNE)
-            return true;
-        return false;
+        return true;
     }
 
     @Override
