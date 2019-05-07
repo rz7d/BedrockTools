@@ -3,6 +3,7 @@ package com.github.stilllogic20.bedrocktools.common.item;
 import static net.minecraft.util.text.TextFormatting.BLUE;
 import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
 import static net.minecraft.util.text.TextFormatting.GRAY;
+import static net.minecraft.util.text.TextFormatting.WHITE;
 
 import java.util.Comparator;
 import java.util.List;
@@ -29,7 +30,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -196,8 +196,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (item != null && player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
-            player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s] %s: %s%s(%.0f)",
-                    DARK_GRAY, GRAY, DARK_GRAY,
+            player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s(%.0f)",
+                    DARK_GRAY, GRAY, DARK_GRAY, WHITE,
                     net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
                     BLUE,
                     net.minecraft.util.text.translation.I18n
