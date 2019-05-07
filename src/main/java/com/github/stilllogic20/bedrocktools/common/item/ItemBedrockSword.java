@@ -67,6 +67,26 @@ public class ItemBedrockSword extends ItemSword {
 
     @Override
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+        return false;
+    }
+
+    @Override
+    public boolean isShield(ItemStack stack, EntityLivingBase entity) {
+        return true;
+    }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return true;
+    }
+
+    @Override
+    public boolean canHarvestBlock(IBlockState blockIn) {
         return true;
     }
 
