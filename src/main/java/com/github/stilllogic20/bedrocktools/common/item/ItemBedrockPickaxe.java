@@ -195,8 +195,9 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
             player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s] %s: %s%s(%.0f)",
+                    DARK_GRAY, GRAY, DARK_GRAY,
                     net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
-                    DARK_GRAY, GRAY, DARK_GRAY, BLUE,
+                    BLUE,
                     net.minecraft.util.text.translation.I18n
                             .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
                     mode.efficiency)));
