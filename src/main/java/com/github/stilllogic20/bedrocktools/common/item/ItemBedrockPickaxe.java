@@ -43,64 +43,16 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     private static final String MINING_MODE_KEY = "efficiency";
     private static final String VEIN_MODE_KEY = "vein";
 
-    static enum MiningMode {
-        NORMAL(20F),
-        MIDDLE(12F),
-        SLOW(8F),
-        FAST(128F),
-        INSANE(Float.MAX_VALUE),
-        OFF(0F);
-
-        private final float efficiency;
-
-        private MiningMode(float efficiency) {
-            this.efficiency = efficiency;
-        }
-
-        @Nonnull
-        public MiningMode next() {
-            final MiningMode[] values = values();
-            final MiningMode next = values[(ordinal() + 1) % values.length];
-            Objects.requireNonNull(next);
-            return next;
-        }
-
-        public float efficiency() {
-            return efficiency;
-        }
-
-    }
-
-    public enum VeinMode {
-        NORMAL(3),
-        MORE(5),
-        ALL(-1),
-        OFF(0);
-
-        private final int range;
-
-        private VeinMode(int range) {
-            this.range = range;
-        }
-
-        @Nonnull
-        public VeinMode next() {
-            final VeinMode[] values = values();
-            final VeinMode next = values[(ordinal() + 1) % values.length];
-            Objects.requireNonNull(next);
-            return next;
-        }
-
-        public int range() {
-            return range;
-        }
-
+    public ItemBedrockPickaxe() {
+        super(BedrockToolsMaterial.BEDROCK);
+        setTranslationKey(NAME);
+        setRegistryName(BedrockToolsMod.MODID, NAME);
+        setHarvestLevel("pickaxe", -1);
     }
 
     @Nonnull
     private static NBTAccess prepare(@Nonnull ItemStack item) {
-        @Nonnull
-        final NBTAccess access = new NBTAccess(item).prepare();
+        @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
         access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
         return access;
     }
@@ -123,11 +75,22 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
-    public ItemBedrockPickaxe() {
-        super(BedrockToolsMaterial.BEDROCK);
-        setTranslationKey(NAME);
-        setRegistryName(BedrockToolsMod.MODID, NAME);
-        setHarvestLevel("pickaxe", -1);
+    private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
+        if (world.isRemote)
+            return;
+
+        final MinecraftServer server = world.getMinecraftServer();
+        if (server != null) {
+            server.addScheduledTask(() -> {
+                IBlockState state = world.getBlockState(position);
+                Block block = state.getBlock();
+                block.onBlockHarvested(world, position, state, player);
+                world.setBlockToAir(position);
+                block.breakBlock(world, position, state);
+                block.dropBlockAsItem(world, position, state, 0);
+                MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
+            });
+        }
     }
 
     @Override
@@ -138,14 +101,14 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             MiningMode miningMode = getMiningMode(stack);
             VeinMode veinMode = getVeinMode(stack);
             tooltip.add(String.format("%s: %s%s",
-                    I18n.format("bedrocktools.item.tooltip.miningmode"), BLUE,
-                    I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
+                I18n.format("bedrocktools.item.tooltip.miningmode"), BLUE,
+                I18n.format("bedrocktools.mode." + miningMode.name().toLowerCase())));
             tooltip.add(String.format("%s: %s%.0f",
-                    I18n.format("bedrocktools.item.tooltip.efficiency"), BLUE,
-                    miningMode.efficiency()));
+                I18n.format("bedrocktools.item.tooltip.efficiency"), BLUE,
+                miningMode.efficiency()));
             tooltip.add(String.format("%s: %s%s",
-                    I18n.format("bedrocktools.item.tooltip.veinmode"), BLUE,
-                    I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
+                I18n.format("bedrocktools.item.tooltip.veinmode"), BLUE,
+                I18n.format("bedrocktools.mode." + veinMode.name().toLowerCase())));
         }
     }
 
@@ -156,12 +119,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public float getDestroySpeed(ItemStack stack, IBlockState state) {
-        if (stack != null) {
-            final MiningMode mode = getMiningMode(stack);
-            assert mode != null;
-            return mode.efficiency();
-        }
-        return super.getDestroySpeed(stack, state);
+        return getMiningMode(stack).efficiency();
     }
 
     @Override
@@ -183,16 +141,16 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             return super.onItemRightClick(world, player, hand);
 
         final ItemStack item = player.getHeldItem(hand);
-        if (item != null && player.isSneaking()) {
+        if (player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
             player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s(%.0f)",
-                    DARK_GRAY, GRAY, DARK_GRAY, WHITE,
-                    net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
-                    BLUE,
-                    net.minecraft.util.text.translation.I18n
-                            .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
-                    mode.efficiency)));
+                DARK_GRAY, GRAY, DARK_GRAY, WHITE,
+                net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
+                BLUE,
+                net.minecraft.util.text.translation.I18n
+                    .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
+                mode.efficiency)));
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
@@ -200,12 +158,12 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing,
-            float hitX, float hitY, float hitZ) {
+                                      float hitX, float hitY, float hitZ) {
         if (world.isRemote)
             return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
         IBlockState state = world.getBlockState(pos);
-        if (state != null && !player.isSneaking()) {
+        if (!player.isSneaking()) {
             if (Float.compare(state.getBlockHardness(world, pos), -1) == 0) {
                 breakBlock(world, pos, player);
             }
@@ -227,38 +185,38 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         final MinecraftServer server = world.getMinecraftServer();
         Objects.requireNonNull(server);
         switch (veinMode) {
-        case ALL:
-            BlockFinder.of(block, 127, world, pos).find().thenAcceptAsync(found -> {
-                if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
-                    found.stream().forEach(p -> breakBlock(world, p, player));
-                    found.stream().filter(p -> p != pos).forEach(p ->
-                        world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, p, Block.getStateId(world.getBlockState(p))));
-                } else {
-                    breakBlock(world, pos, player);
-                }
-            });
-            return true;
-        case NORMAL:
-        case MORE:
-            int range = (veinMode.range() - 1) / 2;
-            CompletableFuture.runAsync(() -> {
-                // Generate BlockPos(int, int, int) from three IntStreams
-                IntStream.rangeClosed(-range, range)
+            case ALL:
+                BlockFinder.of(block, 127, world, pos).find().thenAcceptAsync(found -> {
+                    if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
+                        found.forEach(p -> breakBlock(world, p, player));
+                        found.stream().filter(p -> p != pos).forEach(p ->
+                            world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, p, Block.getStateId(world.getBlockState(p))));
+                    } else {
+                        breakBlock(world, pos, player);
+                    }
+                });
+                return true;
+            case NORMAL:
+            case MORE:
+                int range = (veinMode.range() - 1) / 2;
+                CompletableFuture.runAsync(() -> {
+                    // Generate BlockPos(int, int, int) from three IntStreams
+                    IntStream.rangeClosed(-range, range)
                         .mapToObj(x -> IntStream.rangeClosed(-range, range)
-                                .mapToObj(z -> IntStream.rangeClosed(-range, range)
-                                        .mapToObj(y -> pos.add(x, y, z))))
+                            .mapToObj(z -> IntStream.rangeClosed(-range, range)
+                                .mapToObj(y -> pos.add(x, y, z))))
                         .parallel()
                         .flatMap(UnaryOperator.identity())
                         .flatMap(UnaryOperator.identity())
                         .filter(b -> world.getBlockState(b).getBlock() == block)
-                        .sorted(Comparator.comparing(b -> pos.distanceSq(b)))
+                        .sorted(Comparator.comparing(pos::distanceSq))
                         .limit(BlockFinder.isOre(block) ? 127 : 27)
                         .forEach(b -> breakBlock(world, b, player));
-            });
-            return true;
-        case OFF: // fall-through
-        default:
-            break;
+                });
+                return true;
+            case OFF: // fall-through
+            default:
+                break;
         }
         return super.onBlockStartBreak(stack, pos, player);
     }
@@ -292,27 +250,64 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
         if (world.isRemote)
             return super.canDestroyBlockInCreative(world, pos, stack, player);
-        if (stack != null)
+        if (stack != null) {
             return getMiningMode(stack) != MiningMode.OFF;
+        }
         return super.canDestroyBlockInCreative(world, pos, stack, player);
     }
 
-    private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
-        if (world.isRemote)
-            return;
+    public enum MiningMode {
+        NORMAL(20F),
+        MIDDLE(12F),
+        SLOW(8F),
+        FAST(128F),
+        INSANE(Float.MAX_VALUE),
+        OFF(0F);
 
-        final MinecraftServer server = world.getMinecraftServer();
-        if (server != null) {
-            server.addScheduledTask(() -> {
-                IBlockState state = world.getBlockState(position);
-                Block block = state.getBlock();
-                block.onBlockHarvested(world, position, state, player);
-                world.setBlockToAir(position);
-                block.breakBlock(world, position, state);
-                block.dropBlockAsItem(world, position, state, 0);
-                MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
-            });
+        private final float efficiency;
+
+        MiningMode(float efficiency) {
+            this.efficiency = efficiency;
         }
+
+        @Nonnull
+        public MiningMode next() {
+            final MiningMode[] values = values();
+            final MiningMode next = values[(ordinal() + 1) % values.length];
+            Objects.requireNonNull(next);
+            return next;
+        }
+
+        public float efficiency() {
+            return efficiency;
+        }
+
+    }
+
+    public enum VeinMode {
+        NORMAL(3),
+        MORE(5),
+        ALL(-1),
+        OFF(0);
+
+        private final int range;
+
+        VeinMode(int range) {
+            this.range = range;
+        }
+
+        @Nonnull
+        public VeinMode next() {
+            final VeinMode[] values = values();
+            final VeinMode next = values[(ordinal() + 1) % values.length];
+            Objects.requireNonNull(next);
+            return next;
+        }
+
+        public int range() {
+            return range;
+        }
+
     }
 
 }

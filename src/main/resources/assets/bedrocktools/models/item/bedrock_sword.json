@@ -1,7 +1,7 @@
 {
-    "parent": "item/handheld",
-    "textures": { 
-        "layer0": "bedrocktools:items/bedrock_sword"
-    }
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "bedrocktools:items/bedrock_sword"
+  }
 }
 

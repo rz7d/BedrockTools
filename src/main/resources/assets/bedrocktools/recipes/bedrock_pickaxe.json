@@ -1,20 +1,20 @@
 {
-    "type": "forge:ore_shaped",
-    "group": "bedrocktools:recipe_bedrock_pickaxe",
-    "result": {
-        "item": "bedrocktools:bedrock_pickaxe"
+  "type": "forge:ore_shaped",
+  "group": "bedrocktools:recipe_bedrock_pickaxe",
+  "result": {
+    "item": "bedrocktools:bedrock_pickaxe"
+  },
+  "pattern": [
+    "XXX",
+    " T ",
+    " T "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:stick"
     },
-    "pattern": [
-        "XXX",
-        " T ",
-        " T "
-    ],
-    "key": {
-        "T": {
-            "item": "minecraft:stick"
-        },
-        "X": {
-            "item": "minecraft:bedrock"
-        }
+    "X": {
+      "item": "minecraft:bedrock"
     }
+  }
 }

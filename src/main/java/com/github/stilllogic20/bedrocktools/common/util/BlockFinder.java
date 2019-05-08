@@ -24,8 +24,26 @@ public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
     private static final long serialVersionUID = -4486076892702618694L;
 
     private static final EnumFacing[] FACINGS = EnumFacing.values();
+    @Nonnull
+    private final Block target;
+    @Nonnull
+    private final World world;
+    private final int max;
+    @Nonnull
+    private final BlockPos position;
+    @Nonnull
+    private final Set<BlockPos> found;
 
-    public static boolean equals(@Nullable Block found, @Nullable Block finding) {
+    private BlockFinder(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos position,
+                        @Nonnull Set<BlockPos> found) {
+        this.target = target;
+        this.max = max;
+        this.world = world;
+        this.position = position;
+        this.found = found;
+    }
+
+    private static boolean equals(@Nullable Block found, @Nullable Block finding) {
         boolean equal = Objects.equals(found, finding);
         if (Objects.equals(finding, Blocks.REDSTONE_ORE) || Objects.equals(finding, Blocks.LIT_REDSTONE_ORE))
             equal |= Objects.equals(found, Blocks.REDSTONE_ORE) || Objects.equals(found, Blocks.LIT_REDSTONE_ORE);
@@ -46,39 +64,17 @@ public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
 
     @Nonnull
     public static BlockFinder of(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos origin) {
-        Objects.requireNonNull(target);
-        Objects.requireNonNull(world);
-        Objects.requireNonNull(origin);
-
-        final Set<BlockPos> set = Collections.newSetFromMap(new ConcurrentHashMap<>(max));
-        Objects.requireNonNull(set);
-        return new BlockFinder(target, max, world, origin, set);
-    }
-
-    @Nonnull
-    private final Block target;
-    @Nonnull
-    private final World world;
-    private final int max;
-    @Nonnull
-    private final BlockPos position;
-    @Nonnull
-    private final Set<BlockPos> found;
-
-    private BlockFinder(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos position,
-                        @Nonnull Set<BlockPos> found) {
-        this.target = target;
-        this.max = max;
-        this.world = world;
-        this.position = position;
-        this.found = found;
+        return new BlockFinder(
+            Objects.requireNonNull(target),
+            max,
+            Objects.requireNonNull(world),
+            Objects.requireNonNull(origin),
+            Collections.newSetFromMap(new ConcurrentHashMap<>(max)));
     }
 
     @Nonnull
     public CompletableFuture<Set<BlockPos>> find() {
-        final CompletableFuture<Set<BlockPos>> task = CompletableFuture.supplyAsync(this::invoke);
-        Objects.requireNonNull(task);
-        return task;
+        return CompletableFuture.supplyAsync(this::invoke);
     }
 
     @Override

@@ -1,20 +1,20 @@
 {
-    "type": "forge:ore_shaped",
-    "group": "bedrocktools:recipe_end_portal_frame",
-    "result": {
-        "item": "minecraft:end_portal_frame"
+  "type": "forge:ore_shaped",
+  "group": "bedrocktools:recipe_end_portal_frame",
+  "result": {
+    "item": "minecraft:end_portal_frame"
+  },
+  "pattern": [
+    "XXX",
+    "XTX",
+    "XXX"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:ender_eye"
     },
-    "pattern": [
-        "XXX",
-        "XTX",
-        "XXX"
-    ],
-    "key": {
-        "T": {
-            "item": "minecraft:ender_eye"
-        },
-        "X": {
-            "item": "minecraft:bedrock"
-        }
+    "X": {
+      "item": "minecraft:bedrock"
     }
+  }
 }

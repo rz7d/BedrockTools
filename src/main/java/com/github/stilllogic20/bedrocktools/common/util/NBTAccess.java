@@ -1,16 +1,15 @@
 package com.github.stilllogic20.bedrocktools.common.util;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -26,13 +25,13 @@ public class NBTAccess {
         this(item, item.getTagCompound());
     }
 
-    public NBTAccess(@Nonnull ItemStack item, @Nullable NBTTagCompound tags) {
+    private NBTAccess(@Nonnull ItemStack item, @Nullable NBTTagCompound tags) {
         this.item = item;
         this.tags = tags;
     }
 
     @Nonnull
-    public NBTAccess resetNBT() {
+    public NBTAccess reset() {
         final ItemStack item = this.item;
         final NBTTagCompound nbt = new NBTTagCompound();
         item.setTagCompound(nbt);
@@ -42,15 +41,15 @@ public class NBTAccess {
     @Nonnull
     public NBTAccess prepare() {
         if (tags == null)
-            return resetNBT();
+            return reset();
         return this;
     }
 
     public Optional<? extends NBTAccess> resolve(@Nullable String key) {
         final NBTTagCompound tags = this.tags;
         return tags != null && has(key)
-                ? Optional.of(new NBTAccess(item, tags.getCompoundTag(key)))
-                : Optional.empty();
+            ? Optional.of(new NBTAccess(item, tags.getCompoundTag(key)))
+            : Optional.empty();
     }
 
     @Nonnull
@@ -84,7 +83,7 @@ public class NBTAccess {
     }
 
     public boolean compareAndSet(@Nullable String key, @Nullable NBTTagCompound expected,
-            @Nullable NBTTagCompound value) {
+                                 @Nullable NBTTagCompound value) {
         final NBTTagCompound tags = this.tags;
         if (tags != null && Objects.equals(tags.getCompoundTag(key), expected)) {
             tags.setTag(key, value);

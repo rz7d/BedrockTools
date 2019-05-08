@@ -1,7 +1,6 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
-
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 

@@ -1,20 +1,20 @@
 {
-    "type": "forge:ore_shaped",
-    "group": "bedrocktools:recipe_bedrock_sword",
-    "result": {
-        "item": "bedrocktools:bedrock_sword"
+  "type": "forge:ore_shaped",
+  "group": "bedrocktools:recipe_bedrock_sword",
+  "result": {
+    "item": "bedrocktools:bedrock_sword"
+  },
+  "pattern": [
+    " X ",
+    " X ",
+    " T "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:stick"
     },
-    "pattern": [
-        " X ",
-        " X ",
-        " T "
-    ],
-    "key": {
-        "T": {
-            "item": "minecraft:stick"
-        },
-        "X": {
-            "item": "minecraft:bedrock"
-        }
+    "X": {
+      "item": "minecraft:bedrock"
     }
+  }
 }

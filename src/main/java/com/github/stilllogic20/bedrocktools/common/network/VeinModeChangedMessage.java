@@ -1,13 +1,7 @@
 package com.github.stilllogic20.bedrocktools.common.network;
 
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -17,12 +11,17 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
+
 public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinModeChangedMessage, IMessage> {
 
     @Nullable
     private VeinMode mode;
 
-    public VeinModeChangedMessage() {}
+    public VeinModeChangedMessage() {
+    }
 
     public VeinModeChangedMessage(@Nonnull VeinMode mode) {
         this.mode = mode;
@@ -41,9 +40,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         Objects.requireNonNull(buf);
         final VeinMode[] values = VeinMode.values();
         final VeinMode mode = values[MathHelper.clamp(buf.readInt(), 0, values.length)];
-        assert mode != null;
-        Objects.requireNonNull(mode);
-        this.mode = mode;
+        this.mode = Objects.requireNonNull(mode);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.MiningMode;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ItemBedrockPickaxeTest {
 
