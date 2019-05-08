@@ -1,13 +1,5 @@
 package com.github.stilllogic20.bedrocktools.common.util;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -16,7 +8,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class BlockFinder {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
+
+public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
+
+    private static final long serialVersionUID = -4486076892702618694L;
 
     private static final EnumFacing[] FACINGS = EnumFacing.values();
 
@@ -36,47 +41,61 @@ public class BlockFinder {
         if (stack.isEmpty())
             return false;
         return Arrays.stream(OreDictionary.getOreIDs(stack)).mapToObj(OreDictionary::getOreName)
-                .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
+            .anyMatch(name -> name.startsWith("ore") || name.equals("logWood") || name.equals("treeLeaves"));
     }
 
     @Nonnull
-    public static BlockFinder of(@Nonnull Block target, @Nonnull int max, @Nonnull World world,
-            @Nonnull BlockPos origin) {
-        return new BlockFinder(
-                Objects.requireNonNull(target),
-                Objects.requireNonNull(max),
-                Objects.requireNonNull(world),
-                Objects.requireNonNull(origin));
+    public static BlockFinder of(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos origin) {
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(world);
+        Objects.requireNonNull(origin);
+
+        final Set<BlockPos> set = Collections.newSetFromMap(new ConcurrentHashMap<>(max));
+        Objects.requireNonNull(set);
+        return new BlockFinder(target, max, world, origin, set);
     }
 
+    @Nonnull
     private final Block target;
+    @Nonnull
     private final World world;
     private final int max;
-    private final BlockPos origin;
+    @Nonnull
+    private final BlockPos position;
+    @Nonnull
+    private final Set<BlockPos> found;
 
-    private BlockFinder(@Nonnull Block target, @Nonnull int max, @Nonnull World world, @Nonnull BlockPos origin) {
+    private BlockFinder(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos position,
+                        @Nonnull Set<BlockPos> found) {
         this.target = target;
         this.max = max;
         this.world = world;
-        this.origin = origin;
+        this.position = position;
+        this.found = found;
     }
 
     @Nonnull
-    public Set<BlockPos> find() {
-        Set<BlockPos> found = new HashSet<>(max * FACINGS.length);
-        compute(found, origin);
-        return found;
+    public CompletableFuture<Set<BlockPos>> find() {
+        final CompletableFuture<Set<BlockPos>> task = CompletableFuture.supplyAsync(this::invoke);
+        Objects.requireNonNull(task);
+        return task;
     }
 
-    private void compute(@Nonnull Set<BlockPos> found, @Nonnull BlockPos position) {
+    @Override
+    @Nonnull
+    protected Set<BlockPos> compute() {
         if (found.size() >= max || found.contains(position))
-            return;
+            return found;
+
         if (equals(world.getBlockState(position).getBlock(), target)) {
             found.add(position);
-            for (EnumFacing facing : FACINGS) {
-                compute(found, position.offset(facing));
-            }
+            final ForkJoinTask<?>[] tasks = Arrays.stream(FACINGS).map(facing ->
+                new BlockFinder(target, max, world, position.offset(facing), found)
+            ).toArray(ForkJoinTask[]::new);
+            ForkJoinTask.invokeAll(tasks);
         }
+
+        return found;
     }
 
 }

@@ -215,23 +215,29 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
     @Override
     public boolean onBlockStartBreak(ItemStack stack, BlockPos pos, EntityPlayer player) {
-        if (stack == null)
+        if (stack == null || pos == null || player == null)
             return super.onBlockStartBreak(stack, pos, player);
         World world = player.world;
         if (world.isRemote)
             return super.onBlockStartBreak(stack, pos, player);
+
         IBlockState state = world.getBlockState(pos);
         VeinMode veinMode = getVeinMode(stack);
         Block block = state.getBlock();
+        final MinecraftServer server = world.getMinecraftServer();
+        Objects.requireNonNull(server);
         switch (veinMode) {
-        case OFF:
-            break;
         case ALL:
-            Set<BlockPos> found = BlockFinder.of(block, 127, world, pos).find();
-            if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
-                found.stream().forEach(p -> breakBlock(world, p, player));
-            }
-            break;
+            BlockFinder.of(block, 127, world, pos).find().thenAcceptAsync(found -> {
+                if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
+                    found.stream().forEach(p -> breakBlock(world, p, player));
+                    found.stream().filter(p -> p != pos).forEach(p ->
+                        world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, p, Block.getStateId(world.getBlockState(p))));
+                } else {
+                    breakBlock(world, pos, player);
+                }
+            });
+            return true;
         case NORMAL:
         case MORE:
             int range = (veinMode.range() - 1) / 2;
@@ -249,7 +255,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                         .limit(BlockFinder.isOre(block) ? 127 : 27)
                         .forEach(b -> breakBlock(world, b, player));
             });
-            break;
+            return true;
+        case OFF: // fall-through
         default:
             break;
         }
@@ -300,7 +307,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                 IBlockState state = world.getBlockState(position);
                 Block block = state.getBlock();
                 block.onBlockHarvested(world, position, state, player);
-                world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, position, Block.getStateId(state));
                 world.setBlockToAir(position);
                 block.breakBlock(world, position, state);
                 block.dropBlockAsItem(world, position, state, 0);
