@@ -22,6 +22,7 @@ minecraft {
     version = "1.12.2-14.23.5.2836"
     runDir = "run"
     mappings = "snapshot_20180814"
+    at 'at.cfg'
 }
 
 dependencies {
