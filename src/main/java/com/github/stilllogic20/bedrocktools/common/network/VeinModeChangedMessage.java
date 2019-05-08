@@ -11,6 +11,7 @@ import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinM
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -27,23 +28,28 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         this.mode = mode;
     }
 
-    @Nullable
+    @Nonnull
     public VeinMode getMode() {
+        final VeinMode mode = this.mode;
+        if (mode == null)
+            throw new IllegalStateException("Message is not initialized");
         return mode;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         Objects.requireNonNull(buf);
-        mode = VeinMode.values()[buf.readInt()];
+        final VeinMode[] values = VeinMode.values();
+        final VeinMode mode = values[MathHelper.clamp(buf.readInt(), 0, values.length)];
+        assert mode != null;
+        Objects.requireNonNull(mode);
+        this.mode = mode;
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         Objects.requireNonNull(buf);
-        if (mode != null) {
-            buf.writeInt(mode.ordinal());
-        }
+        buf.writeInt(getMode().ordinal());
     }
 
     @Override
@@ -52,10 +58,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         EntityPlayer player = ctx.getServerHandler().player;
         ItemStack stack = player.getHeldItemMainhand();
         if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
-            VeinMode mode = message.mode;
-            if (mode != null) {
-                ItemBedrockPickaxe.setVeinMode(stack, mode);
-            }
+            ItemBedrockPickaxe.setVeinMode(stack, getMode());
         }
         return null;
     }
