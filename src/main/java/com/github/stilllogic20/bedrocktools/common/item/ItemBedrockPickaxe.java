@@ -1,50 +1,40 @@
 package com.github.stilllogic20.bedrocktools.common.item;
 
-import static net.minecraft.util.text.TextFormatting.BLUE;
-import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
-import static net.minecraft.util.text.TextFormatting.GRAY;
-import static net.minecraft.util.text.TextFormatting.WHITE;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.UnaryOperator;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
+
+import static net.minecraft.util.text.TextFormatting.*;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
@@ -303,24 +293,19 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
         if (world.isRemote)
             return;
-        IBlockState state = world.getBlockState(position);
-        Block block = state.getBlock();
-        block.onBlockHarvested(world, position, state, player);
-        world.playEvent(null, 2001, position, Block.getStateId(state));
-        world.setBlockToAir(position);
-        block.breakBlock(world, position, state);
-        MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
 
-        if (block == Blocks.LIT_REDSTONE_ORE)
-            block = Blocks.REDSTONE_ORE;
-
-        ItemStack stack = new ItemStack(block, 1, block.getMetaFromState(state));
-        if (stack.isEmpty()) {
-            block.dropBlockAsItem(world, position, state, 0);
-        } else {
-            EntityItem entity = new EntityItem(world, player.posX, player.posY, player.posZ, stack);
-            entity.setNoPickupDelay();
-            world.spawnEntity(entity);
+        final MinecraftServer server = world.getMinecraftServer();
+        if (server != null) {
+            server.addScheduledTask(() -> {
+                IBlockState state = world.getBlockState(position);
+                Block block = state.getBlock();
+                block.onBlockHarvested(world, position, state, player);
+                world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, position, Block.getStateId(state));
+                world.setBlockToAir(position);
+                block.breakBlock(world, position, state);
+                block.dropBlockAsItem(world, position, state, 0);
+                MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
+            });
         }
     }
 
