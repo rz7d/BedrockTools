@@ -41,7 +41,9 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
     @Override
     public void toBytes(ByteBuf buf) {
         Objects.requireNonNull(buf);
-        buf.writeInt(mode.ordinal());
+        if (mode != null) {
+            buf.writeInt(mode.ordinal());
+        }
     }
 
     @Override
@@ -50,7 +52,10 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         EntityPlayer player = ctx.getServerHandler().player;
         ItemStack stack = player.getHeldItemMainhand();
         if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
-            ItemBedrockPickaxe.setVeinMode(stack, message.mode);
+            VeinMode mode = message.mode;
+            if (mode != null) {
+                ItemBedrockPickaxe.setVeinMode(stack, mode);
+            }
         }
         return null;
     }
