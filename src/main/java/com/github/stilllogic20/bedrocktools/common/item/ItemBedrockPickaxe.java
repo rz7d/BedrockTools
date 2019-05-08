@@ -2,6 +2,8 @@ package com.github.stilllogic20.bedrocktools.common.item;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
+import com.github.stilllogic20.bedrocktools.common.init.Messages;
+import com.github.stilllogic20.bedrocktools.common.network.MiningModeChangedMessage;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 import net.minecraft.block.Block;
@@ -12,6 +14,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
@@ -20,7 +23,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
@@ -37,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
-import static net.minecraft.util.text.TextFormatting.*;
+import static net.minecraft.util.text.TextFormatting.BLUE;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
@@ -124,7 +126,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             block.breakBlock(world, position, state);
             MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
         });
-        
+
         final int x = position.getX();
         final int y = position.getY();
         final int z = position.getZ();
@@ -194,7 +196,6 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (world.isRemote)
             return super.onItemRightClick(world, player, hand);
@@ -203,13 +204,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
-            player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s(%.0f)",
-                DARK_GRAY, GRAY, DARK_GRAY, WHITE,
-                net.minecraft.util.text.translation.I18n.translateToLocal("bedrocktools.item.tooltip.miningmode"),
-                BLUE,
-                net.minecraft.util.text.translation.I18n
-                    .translateToLocal("bedrocktools.mode." + mode.name().toLowerCase()),
-                mode.efficiency)));
+            Messages.NETWORK.sendTo(new MiningModeChangedMessage(mode), (EntityPlayerMP) player);
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
