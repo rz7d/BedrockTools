@@ -10,9 +10,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
@@ -75,9 +79,38 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
-    private static void breakBlock(World world, BlockPos position, EntityPlayer player) {
+    private static void breakBlock(ItemStack pickaxe, World world, BlockPos position, EntityPlayer player, boolean force) {
         if (world.isRemote)
             return;
+
+        int _fortune = 0;
+        int _silktouch = 0;
+
+        if (!force) {
+            for (NBTBase nbt : pickaxe.getEnchantmentTagList()) {
+                if (nbt instanceof NBTTagCompound) {
+                    NBTTagCompound tagCompound = (NBTTagCompound) nbt;
+                    int id = tagCompound.getShort("id");
+                    int level = tagCompound.getShort("lvl");
+
+                    Enchantment enchantment = Enchantment.getEnchantmentByID(id);
+                    if (enchantment == null) {
+                        continue;
+                    }
+
+                    if (Objects.equals(enchantment, Enchantments.FORTUNE)) {
+                        _fortune = level;
+                    }
+
+                    if (Objects.equals(enchantment, Enchantments.SILK_TOUCH)) {
+                        _silktouch = level;
+                    }
+                }
+            }
+        }
+
+        final int fortune = _fortune;
+        final int silktouch = _silktouch;
 
         final MinecraftServer server = world.getMinecraftServer();
         if (server != null) {
@@ -87,8 +120,23 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                 block.onBlockHarvested(world, position, state, player);
                 world.setBlockToAir(position);
                 block.breakBlock(world, position, state);
-                block.dropBlockAsItem(world, position, state, 0);
                 MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
+
+                if (force || (silktouch > 0 && block.canSilkHarvest(world, position, state, player))) {
+                    ItemStack stack = new ItemStack(block == Blocks.LIT_REDSTONE_ORE ? Blocks.REDSTONE_ORE : block, 1, block.getMetaFromState(state));
+                    EntityItem entity = new EntityItem(world, position.getX(), position.getY(), position.getZ(), stack);
+                    entity.setNoPickupDelay();
+                    world.spawnEntity(entity);
+                    return;
+                }
+
+                NonNullList<ItemStack> drops = NonNullList.create();
+                block.getDrops(drops, world, position, state, fortune);
+                for (ItemStack stack : drops) {
+                    EntityItem entity = new EntityItem(world, position.getX(), position.getY(), position.getZ(), stack);
+                    entity.setNoPickupDelay();
+                    world.spawnEntity(entity);
+                }
             });
         }
     }
@@ -165,7 +213,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         IBlockState state = world.getBlockState(pos);
         if (!player.isSneaking()) {
             if (Float.compare(state.getBlockHardness(world, pos), -1) == 0) {
-                breakBlock(world, pos, player);
+                breakBlock(player.getHeldItemMainhand(), world, pos, player, true);
             }
         }
         return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
@@ -188,11 +236,11 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
             case ALL:
                 BlockFinder.of(block, 127, world, pos).find().thenAcceptAsync(found -> {
                     if (found.size() <= (BlockFinder.isOre(block) ? 127 : 27)) {
-                        found.forEach(p -> breakBlock(world, p, player));
+                        found.forEach(p -> breakBlock(stack, world, p, player, false));
                         found.stream().filter(p -> p != pos).forEach(p ->
                             world.playEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, p, Block.getStateId(world.getBlockState(p))));
                     } else {
-                        breakBlock(world, pos, player);
+                        breakBlock(stack, world, pos, player, false);
                     }
                 });
                 return true;
@@ -211,7 +259,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                         .filter(b -> world.getBlockState(b).getBlock() == block)
                         .sorted(Comparator.comparing(pos::distanceSq))
                         .limit(BlockFinder.isOre(block) ? 127 : 27)
-                        .forEach(b -> breakBlock(world, b, player));
+                        .forEach(b -> breakBlock(stack, world, b, player, false));
                 });
                 return true;
             case OFF: // fall-through
