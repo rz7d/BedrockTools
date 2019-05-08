@@ -58,7 +58,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
         EntityPlayer player = ctx.getServerHandler().player;
         ItemStack stack = player.getHeldItemMainhand();
         if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
-            ItemBedrockPickaxe.setVeinMode(stack, getMode());
+            ItemBedrockPickaxe.setVeinMode(stack, message.getMode());
         }
         return null;
     }
