@@ -112,34 +112,44 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         final int silktouch = _silktouch;
 
         final MinecraftServer server = world.getMinecraftServer();
-        if (server != null) {
-            server.addScheduledTask(() -> {
-                IBlockState state = world.getBlockState(position);
-                Block block = state.getBlock();
-                block.onBlockHarvested(world, position, state, player);
-                world.setBlockToAir(position);
-                block.breakBlock(world, position, state);
-                MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
-
-                if (force || (silktouch > 0 && block.canSilkHarvest(world, position, state, player))) {
-                    ItemStack stack = force
-                        ? new ItemStack(block, 1, block.getMetaFromState(state))
-                        : block.getSilkTouchDrop(state);
-                    EntityItem entity = new EntityItem(world, position.getX(), position.getY(), position.getZ(), stack);
-                    entity.setNoPickupDelay();
-                    world.spawnEntity(entity);
-                    return;
-                }
-
-                NonNullList<ItemStack> drops = NonNullList.create();
-                block.getDrops(drops, world, position, state, fortune);
-                for (ItemStack stack : drops) {
-                    EntityItem entity = new EntityItem(world, position.getX(), position.getY(), position.getZ(), stack);
-                    entity.setNoPickupDelay();
-                    world.spawnEntity(entity);
-                }
-            });
+        if (server == null) {
+            throw new IllegalStateException("MinecraftServer is not initialized");
         }
+
+        IBlockState state = world.getBlockState(position);
+        Block block = state.getBlock();
+        server.addScheduledTask(() -> {
+            block.onBlockHarvested(world, position, state, player);
+            world.setBlockToAir(position);
+            block.breakBlock(world, position, state);
+            MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
+        });
+        
+        final int x = position.getX();
+        final int y = position.getY();
+        final int z = position.getZ();
+
+        server.addScheduledTask(() -> {
+            if (force) {
+                dropItemStack(new ItemStack(block, 1, block.getMetaFromState(state)), world, x, y, z);
+                return;
+            }
+
+            if (silktouch > 0 && block.canSilkHarvest(world, position, state, player)) {
+                dropItemStack(block.getSilkTouchDrop(state), world, x, y, z);
+                return;
+            }
+
+            final NonNullList<ItemStack> drops = NonNullList.create();
+            block.getDrops(drops, world, position, state, fortune);
+            drops.forEach(i -> dropItemStack(i, world, x, y, z));
+        });
+    }
+
+    private static void dropItemStack(@Nonnull ItemStack stack, @Nonnull World world, double x, double y, double z) {
+        final EntityItem entity = new EntityItem(world, x, y, z, stack);
+        entity.setNoPickupDelay();
+        world.spawnEntity(entity);
     }
 
     @Override
