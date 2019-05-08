@@ -12,7 +12,6 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
@@ -123,7 +122,9 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
                 MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
 
                 if (force || (silktouch > 0 && block.canSilkHarvest(world, position, state, player))) {
-                    ItemStack stack = new ItemStack(block == Blocks.LIT_REDSTONE_ORE ? Blocks.REDSTONE_ORE : block, 1, block.getMetaFromState(state));
+                    ItemStack stack = force
+                        ? new ItemStack(block, 1, block.getMetaFromState(state))
+                        : block.getSilkTouchDrop(state);
                     EntityItem entity = new EntityItem(world, position.getX(), position.getY(), position.getZ(), stack);
                     entity.setNoPickupDelay();
                     world.spawnEntity(entity);
