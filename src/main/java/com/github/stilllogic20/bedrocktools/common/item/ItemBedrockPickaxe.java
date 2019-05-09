@@ -80,7 +80,8 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
-    private static void breakBlock(ItemStack pickaxe, World world, BlockPos position, EntityPlayer player, boolean force) {
+    private static void breakBlock(@Nonnull ItemStack pickaxe, @Nonnull World world, @Nonnull BlockPos position,
+                                   @Nonnull EntityPlayer player, boolean force) {
         if (world.isRemote)
             return;
 
