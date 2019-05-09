@@ -162,7 +162,6 @@ public class ItemBedrockSword extends ItemSword {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (world.isRemote)
             return super.onItemRightClick(world, player, hand);
