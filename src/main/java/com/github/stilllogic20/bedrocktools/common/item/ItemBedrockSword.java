@@ -2,19 +2,21 @@ package com.github.stilllogic20.bedrocktools.common.item;
 
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
+import com.github.stilllogic20.bedrocktools.common.init.Messages;
+import com.github.stilllogic20.bedrocktools.common.network.SPacketWeaponModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -24,7 +26,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-import static net.minecraft.util.text.TextFormatting.*;
+import static net.minecraft.util.text.TextFormatting.BLUE;
 
 public class ItemBedrockSword extends ItemSword {
 
@@ -171,13 +173,7 @@ public class ItemBedrockSword extends ItemSword {
         if (player.isSneaking()) {
             WeaponMode newMode = mode.next();
             setWeaponMode(item, newMode);
-            player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s",
-                DARK_GRAY, GRAY, DARK_GRAY, WHITE,
-                net.minecraft.util.text.translation.I18n
-                    .translateToLocal("bedrocktools.item.tooltip.weaponmode"),
-                BLUE,
-                net.minecraft.util.text.translation.I18n
-                    .translateToLocal("bedrocktools.mode." + newMode.name().toLowerCase()))));
+            Messages.S_SWORD_NETWORK.sendTo(new SPacketWeaponModeChanged(newMode), (EntityPlayerMP) player);
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
 

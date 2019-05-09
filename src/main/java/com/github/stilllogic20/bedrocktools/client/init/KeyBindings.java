@@ -3,7 +3,7 @@ package com.github.stilllogic20.bedrocktools.client.init;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe;
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockPickaxe.VeinMode;
-import com.github.stilllogic20.bedrocktools.common.network.VeinModeChangedMessage;
+import com.github.stilllogic20.bedrocktools.common.network.CPacketVeinModeChanged;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -45,7 +45,7 @@ public class KeyBindings {
             && mc.player.isSneaking()
             && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
             VeinMode newMode = ItemBedrockPickaxe.getVeinMode(itemInMainHand).next();
-            Messages.C_NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
+            Messages.C_PICKAXE_NETWORK.sendToServer(new CPacketVeinModeChanged(newMode));
             mc.player.sendMessage(new TextComponentString(
                 String.format("%s[%sBedrockTools%s]%s %s: %s%s(%d)",
                     DARK_GRAY, GRAY, DARK_GRAY, WHITE,

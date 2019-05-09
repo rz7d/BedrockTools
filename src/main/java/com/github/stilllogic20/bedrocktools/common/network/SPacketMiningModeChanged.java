@@ -17,15 +17,15 @@ import java.util.Objects;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
-public class MiningModeChangedMessage implements IMessage, IMessageHandler<MiningModeChangedMessage, IMessage> {
+public class SPacketMiningModeChanged implements IMessage, IMessageHandler<SPacketMiningModeChanged, IMessage> {
 
     @Nullable
     private ItemBedrockPickaxe.MiningMode mode;
 
-    public MiningModeChangedMessage() {
+    public SPacketMiningModeChanged() {
     }
 
-    public MiningModeChangedMessage(@Nonnull ItemBedrockPickaxe.MiningMode mode) {
+    public SPacketMiningModeChanged(@Nonnull ItemBedrockPickaxe.MiningMode mode) {
         this.mode = mode;
     }
 
@@ -52,7 +52,7 @@ public class MiningModeChangedMessage implements IMessage, IMessageHandler<Minin
     }
 
     @Override
-    public IMessage onMessage(MiningModeChangedMessage message, MessageContext ctx) {
+    public IMessage onMessage(SPacketMiningModeChanged message, MessageContext ctx) {
         assert ctx.side == Side.CLIENT;
         @Nonnull final ItemBedrockPickaxe.MiningMode mode = message.getMode();
         Minecraft.getMinecraft().player

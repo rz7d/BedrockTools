@@ -15,15 +15,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinModeChangedMessage, IMessage> {
+public class CPacketVeinModeChanged implements IMessage, IMessageHandler<CPacketVeinModeChanged, IMessage> {
 
     @Nullable
     private VeinMode mode;
 
-    public VeinModeChangedMessage() {
+    public CPacketVeinModeChanged() {
     }
 
-    public VeinModeChangedMessage(@Nonnull VeinMode mode) {
+    public CPacketVeinModeChanged(@Nonnull VeinMode mode) {
         this.mode = mode;
     }
 
@@ -50,7 +50,7 @@ public class VeinModeChangedMessage implements IMessage, IMessageHandler<VeinMod
     }
 
     @Override
-    public IMessage onMessage(VeinModeChangedMessage message, MessageContext ctx) {
+    public IMessage onMessage(CPacketVeinModeChanged message, MessageContext ctx) {
         assert ctx.side == Side.SERVER;
         EntityPlayer player = ctx.getServerHandler().player;
         ItemStack stack = player.getHeldItemMainhand();

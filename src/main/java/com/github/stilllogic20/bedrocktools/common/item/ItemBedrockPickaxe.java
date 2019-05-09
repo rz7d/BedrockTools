@@ -3,7 +3,7 @@ package com.github.stilllogic20.bedrocktools.common.item;
 import com.github.stilllogic20.bedrocktools.BedrockToolsMod;
 import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
-import com.github.stilllogic20.bedrocktools.common.network.MiningModeChangedMessage;
+import com.github.stilllogic20.bedrocktools.common.network.SPacketMiningModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 import net.minecraft.block.Block;
@@ -204,7 +204,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
-            Messages.S_NETWORK.sendTo(new MiningModeChangedMessage(mode), (EntityPlayerMP) player);
+            Messages.S_PICKAXE_NETWORK.sendTo(new SPacketMiningModeChanged(mode), (EntityPlayerMP) player);
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
