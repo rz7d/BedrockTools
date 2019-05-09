@@ -5,7 +5,9 @@ import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.network.SPacketMiningModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
+import com.github.stilllogic20.bedrocktools.common.util.NBT;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
+import com.github.stilllogic20.bedrocktools.common.util.NBTScanner;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -43,41 +45,65 @@ import static net.minecraft.util.text.TextFormatting.BLUE;
 
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
+    @NBT(key = "pickaxe_mode", parent = "bedrocktools")
+    static class BedrockPickaxeState {
+
+        private final transient ItemStack item;
+        private final transient NBTScanner scanner;
+
+        @NBT(key = "efficiency")
+        private MiningMode miningMode = MiningMode.NORMAL;
+
+        @NBT(key = "vein")
+        private VeinMode veinMode = VeinMode.OFF;
+
+        BedrockPickaxeState(ItemStack item) {
+            this.item = item;
+            this.scanner = NBTScanner.scan(this);
+        }
+
+        public MiningMode getMiningMode() {
+            return miningMode;
+        }
+
+        public void setMiningMode(MiningMode miningMode) {
+            this.miningMode = miningMode;
+        }
+
+        public VeinMode getVeinMode() {
+            return veinMode;
+        }
+
+        public void setVeinMode(VeinMode veinMode) {
+            this.veinMode = veinMode;
+        }
+
+        @Nonnull
+        private NBTAccess prepare(@Nonnull ItemStack item) {
+            @Nonnull final String key = scanner.key();
+            @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
+            access.compareAndSet(key, null, new NBTTagCompound());
+            return access.resolve(key).get();
+        }
+
+        public void fromNBT(NBTAccess nbt) {
+            this.miningMode = scanner.access("miningMode").asInt();
+            this.veinMode = scanner.access("veinMode").asInt();
+        }
+
+        public NBTAccess toNBT() {
+            return scanner.compose(item, "miningMode", "veinMode");
+        }
+
+    }
+
     private static final String NAME = "bedrock_pickaxe";
-    private static final String MODE_KEY = "bedrocktools.pickaxe_mode";
-    private static final String MINING_MODE_KEY = "efficiency";
-    private static final String VEIN_MODE_KEY = "vein";
 
     public ItemBedrockPickaxe() {
         super(BedrockToolsMaterial.BEDROCK);
         setTranslationKey(NAME);
         setRegistryName(BedrockToolsMod.MODID, NAME);
         setHarvestLevel("pickaxe", -1);
-    }
-
-    @Nonnull
-    private static NBTAccess prepare(@Nonnull ItemStack item) {
-        @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
-        access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
-        return access.resolve(MODE_KEY).get();
-    }
-
-    @Nonnull
-    public static MiningMode getMiningMode(@Nonnull ItemStack item) {
-        return prepare(item).getEnum(MINING_MODE_KEY, MiningMode.values()).orElse(MiningMode.NORMAL);
-    }
-
-    @Nonnull
-    public static VeinMode getVeinMode(@Nonnull ItemStack item) {
-        return prepare(item).getEnum(VEIN_MODE_KEY, VeinMode.values()).orElse(VeinMode.OFF);
-    }
-
-    public static void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
-        prepare(item).setEnum(MINING_MODE_KEY, miningMode);
-    }
-
-    public static void setVeinMode(@Nonnull ItemStack item, @Nonnull VeinMode veinMode) {
-        prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
     private static void breakBlock(ItemStack pickaxe, World world, BlockPos position, EntityPlayer player, boolean force) {
