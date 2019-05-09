@@ -2,6 +2,7 @@ package com.github.stilllogic20.bedrocktools.common.util;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
@@ -82,10 +83,10 @@ public class NBTAccess {
         return tags != null && tags.hasKey(key);
     }
 
-    public boolean compareAndSet(@Nullable String key, @Nullable NBTTagCompound expected,
-                                 @Nullable NBTTagCompound value) {
+    public <T extends NBTBase> boolean compareAndSet(@Nullable String key, @Nullable T expected,
+                                                     @Nullable T value) {
         final NBTTagCompound tags = this.tags;
-        if (tags != null && Objects.equals(tags.getCompoundTag(key), expected)) {
+        if (tags != null &&  Objects.equals(tags.getTag(key), expected)) {
             tags.setTag(key, value);
             return true;
         }
