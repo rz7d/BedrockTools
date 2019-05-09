@@ -17,6 +17,10 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
+import static net.minecraft.util.text.TextFormatting.GRAY;
+import static net.minecraft.util.text.TextFormatting.WHITE;
+
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
@@ -41,9 +45,10 @@ public class KeyBindings {
             && mc.player.isSneaking()
             && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
             VeinMode newMode = ItemBedrockPickaxe.getVeinMode(itemInMainHand).next();
-            Messages.NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
+            Messages.C_NETWORK.sendToServer(new VeinModeChangedMessage(newMode));
             mc.player.sendMessage(new TextComponentString(
-                String.format("[BedrockTools] %s: %s%s(%d)",
+                String.format("%s[%sBedrockTools%s]%s %s: %s%s(%d)",
+                    DARK_GRAY, GRAY, DARK_GRAY, WHITE,
                     I18n.format("bedrocktools.item.tooltip.veinmode"),
                     TextFormatting.DARK_AQUA,
                     I18n.format("bedrocktools.mode." + newMode.name().toLowerCase()),
