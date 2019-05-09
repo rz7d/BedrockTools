@@ -59,7 +59,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
     private static NBTAccess prepare(@Nonnull ItemStack item) {
         @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
         access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
-        return access;
+        return access.resolve(MODE_KEY).get();
     }
 
     @Nonnull
