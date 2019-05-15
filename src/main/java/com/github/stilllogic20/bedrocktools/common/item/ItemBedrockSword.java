@@ -172,7 +172,7 @@ public class ItemBedrockSword extends ItemSword {
         if (player.isSneaking()) {
             WeaponMode newMode = mode.next();
             setWeaponMode(item, newMode);
-            Messages.S_SWORD_NETWORK.sendTo(new SPacketWeaponModeChanged(newMode), (EntityPlayerMP) player);
+            Messages.NETWORK.sendTo(new SPacketWeaponModeChanged(newMode), (EntityPlayerMP) player);
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
 

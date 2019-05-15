@@ -45,7 +45,7 @@ public class KeyBindings {
             && mc.player.isSneaking()
             && itemInMainHand.getItem() instanceof ItemBedrockPickaxe) {
             VeinMode newMode = ItemBedrockPickaxe.getVeinMode(itemInMainHand).next();
-            Messages.C_PICKAXE_NETWORK.sendToServer(new CPacketVeinModeChanged(newMode));
+            Messages.NETWORK.sendToServer(new CPacketVeinModeChanged(newMode));
             mc.player.sendMessage(new TextComponentString(
                 String.format("%s[%sBedrockTools%s]%s %s: %s%s(%d)",
                     DARK_GRAY, GRAY, DARK_GRAY, WHITE,

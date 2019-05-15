@@ -7,20 +7,16 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-import java.nio.channels.NetworkChannel;
-
 public class Messages {
 
-    public static final SimpleNetworkWrapper C_PICKAXE_NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("bedrocktools.client.pickaxe");
-    public static final SimpleNetworkWrapper S_PICKAXE_NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("bedrocktools.server.pickaxe");
-    public static final SimpleNetworkWrapper S_SWORD_NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("bedrocktools.server.sword");
+    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("bedrocktools");
     private Messages() {
     }
 
     public static void init() {
-        C_PICKAXE_NETWORK.registerMessage(CPacketVeinModeChanged.class, CPacketVeinModeChanged.class, 0, Side.SERVER);
-        S_PICKAXE_NETWORK.registerMessage(SPacketMiningModeChanged.class, SPacketMiningModeChanged.class, 0, Side.CLIENT);
-        S_SWORD_NETWORK.registerMessage(SPacketWeaponModeChanged.class, SPacketWeaponModeChanged.class, 0, Side.CLIENT);
+        NETWORK.registerMessage(CPacketVeinModeChanged.class, CPacketVeinModeChanged.class, 0, Side.SERVER);
+        NETWORK.registerMessage(SPacketMiningModeChanged.class, SPacketMiningModeChanged.class, 1, Side.CLIENT);
+        NETWORK.registerMessage(SPacketWeaponModeChanged.class, SPacketWeaponModeChanged.class, 2, Side.CLIENT);
     }
 
 }

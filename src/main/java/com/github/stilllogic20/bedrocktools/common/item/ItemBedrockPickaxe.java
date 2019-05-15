@@ -205,7 +205,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         if (player.isSneaking()) {
             MiningMode mode = getMiningMode(item).next();
             setMiningMode(item, mode);
-            Messages.S_PICKAXE_NETWORK.sendTo(new SPacketMiningModeChanged(mode), (EntityPlayerMP) player);
+            Messages.NETWORK.sendTo(new SPacketMiningModeChanged(mode), (EntityPlayerMP) player);
             return new ActionResult<>(EnumActionResult.SUCCESS, item);
         }
         return new ActionResult<>(EnumActionResult.PASS, item);
