@@ -133,13 +133,11 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         final int z = position.getZ();
 
         server.addScheduledTask(() -> {
-            if (force) {
-                dropItemStack(new ItemStack(block, 1, block.getMetaFromState(state)), world, x, y, z);
-                return;
-            }
-
-            if (silktouch > 0 && block.canSilkHarvest(world, position, state, player)) {
-                dropItemStack(block.getSilkTouchDrop(state), world, x, y, z);
+            if (force || silktouch > 0 && block.canSilkHarvest(world, position, state, player)) {
+                ItemStack drop = block.getSilkTouchDrop(state);
+                if (drop.isEmpty())
+                    drop = new ItemStack(block, 1, block.getMetaFromState(state));
+                dropItemStack(drop, world, x, y, z);
                 return;
             }
 
