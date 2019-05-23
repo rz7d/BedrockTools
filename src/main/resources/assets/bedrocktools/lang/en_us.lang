@@ -20,6 +20,7 @@ bedrocktools.mode.all=All
 bedrocktools.mode.critical_attack=(WIP) Critical Attack
 bedrocktools.mode.ranged=(WIP) Ranged Attack
 bedrocktools.mode.shield=Instant Shield
+bedrocktools.mode.hoe=Hoe
 bedrocktools.mode.none=None
 
 bedrocktools.keybinding.togglevein=Toggle vein mode

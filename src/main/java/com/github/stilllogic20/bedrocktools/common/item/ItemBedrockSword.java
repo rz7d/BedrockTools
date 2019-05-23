@@ -5,12 +5,16 @@ import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.network.SPacketWeaponModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -149,6 +153,7 @@ public class ItemBedrockSword extends ItemSword {
             WeaponMode mode = getWeaponMode(stack);
             switch (mode) {
                 case NONE:
+                case HOE:
                     return 0;
                 case CRITICAL_ATTACK: // fall-through
                 case RANGED:
@@ -189,10 +194,65 @@ public class ItemBedrockSword extends ItemSword {
         return new ActionResult<>(EnumActionResult.SUCCESS, item);
     }
 
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        ItemStack stack = player.getHeldItem(hand);
+        switch (getWeaponMode(stack)) {
+            case HOE:
+                return useHoe(stack, player, worldIn, pos, facing);
+            default:
+                return EnumActionResult.PASS;
+        }
+    }
+
+    private EnumActionResult useHoe(ItemStack stack, EntityPlayer player, World worldIn, BlockPos pos, EnumFacing facing) {
+        if (!player.canPlayerEdit(pos.offset(facing), facing, stack))
+            return EnumActionResult.FAIL;
+
+        int hook = net.minecraftforge.event.ForgeEventFactory.onHoeUse(stack, player, worldIn, pos);
+        if (hook != 0) return hook > 0 ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
+
+        IBlockState state = worldIn.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if (facing == EnumFacing.DOWN || !worldIn.isAirBlock(pos.up()))
+            return EnumActionResult.PASS;
+
+        if (block == Blocks.GRASS || block == Blocks.GRASS_PATH) {
+            setBlock(stack, player, worldIn, pos, Blocks.FARMLAND.getDefaultState());
+            return EnumActionResult.SUCCESS;
+        }
+
+        if (block == Blocks.DIRT) {
+            switch (state.getValue(BlockDirt.VARIANT)) {
+                case DIRT:
+                    setBlock(stack, player, worldIn, pos, Blocks.FARMLAND.getDefaultState());
+                    return EnumActionResult.SUCCESS;
+                case COARSE_DIRT:
+                    setBlock(stack, player, worldIn, pos, Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT));
+                    return EnumActionResult.SUCCESS;
+                case PODZOL: // fall-through
+                default:
+                    break;
+            }
+        }
+
+        return EnumActionResult.PASS;
+    }
+
+    private void setBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, IBlockState state) {
+        world.playSound(player, pos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        if (!world.isRemote) {
+            world.setBlockState(pos, state, 11);
+            stack.damageItem(1, player);
+        }
+    }
+
     public enum WeaponMode {
         CRITICAL_ATTACK,
         RANGED,
         SHIELD,
+        HOE,
         NONE;
 
         @Nonnull

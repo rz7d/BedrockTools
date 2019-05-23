@@ -20,6 +20,7 @@ bedrocktools.mode.all=すべて
 bedrocktools.mode.critical_attack=致命傷 (未実装)
 bedrocktools.mode.ranged=範囲攻撃 (未実装)
 bedrocktools.mode.shield=防御
+bedrocktools.mode.hoe=クワ
 bedrocktools.mode.none=なし
 
 bedrocktools.keybinding.togglevein=一括破壊モード切り替え
