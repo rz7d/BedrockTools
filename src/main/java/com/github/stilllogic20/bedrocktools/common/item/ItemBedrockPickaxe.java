@@ -21,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -35,6 +36,7 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
@@ -121,29 +123,34 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
 
         IBlockState state = world.getBlockState(position);
         Block block = state.getBlock();
+        final int x = position.getX();
+        final int y = position.getY();
+        final int z = position.getZ();
         server.addScheduledTask(() -> {
             block.onBlockHarvested(world, position, state, player);
             world.setBlockToAir(position);
             block.breakBlock(world, position, state);
             MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, position, state, player));
-        });
 
-        final int x = position.getX();
-        final int y = position.getY();
-        final int z = position.getZ();
-
-        server.addScheduledTask(() -> {
-            if (force || silktouch > 0 && block.canSilkHarvest(world, position, state, player)) {
+            if (force || (silktouch > 0 && block.canSilkHarvest(world, position, state, player))) {
                 ItemStack drop = block.getSilkTouchDrop(state);
                 if (drop.isEmpty())
                     drop = new ItemStack(block, 1, block.getMetaFromState(state));
                 dropItemStack(drop, world, x, y, z);
                 return;
             }
-
             final NonNullList<ItemStack> drops = NonNullList.create();
             block.getDrops(drops, world, position, state, fortune);
-            drops.forEach(i -> dropItemStack(i, world, x, y, z));
+            long count = drops.stream()
+                .filter(i -> !i.isEmpty())
+                .peek(i -> dropItemStack(i, world, x, y, z))
+                .count();
+            if (count == 0)
+                dropItemStack(new ItemStack(getItemFromBlock(block), 1,
+                    block.getMetaFromState(state),
+                    Optional.ofNullable(world.getTileEntity(position))
+                        .map(TileEntity::serializeNBT)
+                        .orElse(null)), world, x, y, z);
         });
     }
 
