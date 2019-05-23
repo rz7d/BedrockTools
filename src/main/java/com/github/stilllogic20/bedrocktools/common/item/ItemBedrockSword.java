@@ -5,16 +5,20 @@ import com.github.stilllogic20.bedrocktools.common.BedrockToolsMaterial;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.network.SPacketWeaponModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
+import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -246,6 +250,21 @@ public class ItemBedrockSword extends ItemSword {
             world.setBlockState(pos, state, 11);
             stack.damageItem(1, player);
         }
+    }
+
+    @Override
+    @Nonnull
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
+        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
+
+        if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
+            multimap.removeAll(SharedMonsterAttributes.ATTACK_DAMAGE.getName());
+            multimap.removeAll(SharedMonsterAttributes.ATTACK_SPEED.getName());
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", (double) getAttackDamage() + 3.0F, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", Integer.MAX_VALUE, 0));
+        }
+
+        return multimap;
     }
 
     public enum WeaponMode {
