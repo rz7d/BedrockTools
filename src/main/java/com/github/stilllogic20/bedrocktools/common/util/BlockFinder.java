@@ -1,6 +1,7 @@
 package com.github.stilllogic20.bedrocktools.common.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -10,6 +11,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
@@ -19,23 +21,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 
+@ParametersAreNonnullByDefault
 public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
 
     private static final long serialVersionUID = -4486076892702618694L;
-
     private static final EnumFacing[] FACINGS = EnumFacing.values();
-    @Nonnull
+
     private final Block target;
-    @Nonnull
     private final World world;
     private final int max;
-    @Nonnull
     private final BlockPos position;
-    @Nonnull
     private final Set<BlockPos> found;
 
-    private BlockFinder(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos position,
-                        @Nonnull Set<BlockPos> found) {
+    private BlockFinder(Block target, int max, World world, BlockPos position, Set<BlockPos> found) {
         this.target = target;
         this.max = max;
         this.world = world;
@@ -63,7 +61,7 @@ public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
     }
 
     @Nonnull
-    public static BlockFinder of(@Nonnull Block target, int max, @Nonnull World world, @Nonnull BlockPos origin) {
+    public static BlockFinder of(Block target, int max, World world, BlockPos origin) {
         return new BlockFinder(
             Objects.requireNonNull(target),
             max,
@@ -83,7 +81,9 @@ public class BlockFinder extends RecursiveTask<Set<BlockPos>> {
         if (found.size() >= max || found.contains(position))
             return found;
 
-        if (equals(world.getBlockState(position).getBlock(), target)) {
+        IBlockState state = world.getBlockState(position);
+        Block block = state.getBlock();
+        if (equals(block, target)) {
             found.add(position);
             final ForkJoinTask<?>[] tasks = Arrays.stream(FACINGS).map(facing ->
                 new BlockFinder(target, max, world, position.offset(facing), found)
