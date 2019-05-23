@@ -2,6 +2,7 @@ package com.github.stilllogic20.bedrocktools.common.network;
 
 import com.github.stilllogic20.bedrocktools.common.item.ItemBedrockSword;
 import io.netty.buffer.ByteBuf;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextComponentString;
@@ -10,24 +11,24 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketWeaponModeChanged implements IMessage {
 
-    @Nullable
     private ItemBedrockSword.WeaponMode mode;
 
     public SPacketWeaponModeChanged() {
     }
 
-    public SPacketWeaponModeChanged(@Nonnull ItemBedrockSword.WeaponMode mode) {
+    public SPacketWeaponModeChanged(ItemBedrockSword.WeaponMode mode) {
         this.mode = mode;
     }
 
-    @Nonnull
     public ItemBedrockSword.WeaponMode getMode() {
         final ItemBedrockSword.WeaponMode mode = this.mode;
         if (mode == null)
@@ -49,10 +50,11 @@ public class SPacketWeaponModeChanged implements IMessage {
     public static final class Handler implements IMessageHandler<SPacketWeaponModeChanged, IMessage> {
 
         @Override
+        @Nullable
         public IMessage onMessage(SPacketWeaponModeChanged message, MessageContext ctx) {
             if (ctx.side != Side.CLIENT)
                 throw new AssertionError();
-            @Nonnull final ItemBedrockSword.WeaponMode mode = message.getMode();
+            final ItemBedrockSword.WeaponMode mode = message.getMode();
             final Minecraft mc = Minecraft.getMinecraft();
             mc.addScheduledTask(() -> {
                 mc.player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s",

@@ -5,7 +5,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
@@ -16,22 +15,18 @@ import java.util.OptionalInt;
 @MethodsReturnNonnullByDefault
 public class NBTAccess {
 
-    @Nonnull
     private final ItemStack item;
-
-    @Nullable
     private final NBTTagCompound tags;
 
-    public NBTAccess(@Nonnull ItemStack item) {
+    public NBTAccess(ItemStack item) {
         this(item, item.getTagCompound());
     }
 
-    private NBTAccess(@Nonnull ItemStack item, @Nullable NBTTagCompound tags) {
+    private NBTAccess(ItemStack item, @Nullable NBTTagCompound tags) {
         this.item = item;
         this.tags = tags;
     }
 
-    @Nonnull
     public NBTAccess reset() {
         final ItemStack item = this.item;
         final NBTTagCompound nbt = new NBTTagCompound();
@@ -39,7 +34,6 @@ public class NBTAccess {
         return new NBTAccess(item, nbt);
     }
 
-    @Nonnull
     public NBTAccess prepare() {
         if (tags == null)
             return reset();
@@ -53,8 +47,7 @@ public class NBTAccess {
             : Optional.empty();
     }
 
-    @Nonnull
-    public <T extends Enum<T>> Optional<T> getEnum(@Nullable String key, @Nonnull T[] values) {
+    public <T extends Enum<T>> Optional<T> getEnum(@Nullable String key, T[] values) {
         if (!has(key))
             return Optional.empty();
         int index = getInt(key).orElse(0);
@@ -63,7 +56,7 @@ public class NBTAccess {
         return Optional.of(values[index]);
     }
 
-    public <T extends Enum<T>> boolean setEnum(@Nullable String key, @Nonnull T value) {
+    public <T extends Enum<T>> boolean setEnum(@Nullable String key, T value) {
         final NBTTagCompound tags = this.tags;
         if (tags == null)
             return false;
@@ -86,7 +79,7 @@ public class NBTAccess {
     public <T extends NBTBase> boolean compareAndSet(@Nullable String key, @Nullable T expected,
                                                      @Nullable T value) {
         final NBTTagCompound tags = this.tags;
-        if (tags != null &&  Objects.equals(tags.getTag(key), expected)) {
+        if (tags != null && Objects.equals(tags.getTag(key), expected)) {
             tags.setTag(key, value);
             return true;
         }

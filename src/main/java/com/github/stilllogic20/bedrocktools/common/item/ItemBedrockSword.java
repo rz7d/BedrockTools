@@ -6,6 +6,7 @@ import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.network.SPacketWeaponModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
 import com.google.common.collect.Multimap;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.state.IBlockState;
@@ -29,13 +30,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 
 import static net.minecraft.util.text.TextFormatting.BLUE;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemBedrockSword extends ItemSword {
 
     private static final String NAME = "bedrock_sword";
@@ -51,19 +54,17 @@ public class ItemBedrockSword extends ItemSword {
                 && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F);
     }
 
-    @Nonnull
-    private static NBTAccess prepare(@Nonnull ItemStack item) {
-        @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
+    private static NBTAccess prepare(ItemStack item) {
+        final NBTAccess access = new NBTAccess(item).prepare();
         access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
         return access;
     }
 
-    @Nonnull
-    public static WeaponMode getWeaponMode(@Nonnull ItemStack item) {
+    public static WeaponMode getWeaponMode(ItemStack item) {
         return prepare(item).getEnum(SUBACTION_MODE_KEY, WeaponMode.values()).orElse(WeaponMode.SHIELD);
     }
 
-    public static void setWeaponMode(@Nonnull ItemStack item, @Nonnull WeaponMode mode) {
+    public static void setWeaponMode(ItemStack item, WeaponMode mode) {
         prepare(item).setEnum(SUBACTION_MODE_KEY, mode);
     }
 
@@ -105,7 +106,7 @@ public class ItemBedrockSword extends ItemSword {
     }
 
     @Override
-    public boolean isShield(ItemStack stack, EntityLivingBase entity) {
+    public boolean isShield(ItemStack stack, @Nullable EntityLivingBase entity) {
         return true;
     }
 
@@ -253,7 +254,6 @@ public class ItemBedrockSword extends ItemSword {
     }
 
     @Override
-    @Nonnull
     public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
         Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 
@@ -274,7 +274,6 @@ public class ItemBedrockSword extends ItemSword {
         HOE,
         NONE;
 
-        @Nonnull
         public WeaponMode next() {
             final WeaponMode[] values = values();
             final WeaponMode next = values[(ordinal() + 1) % values.length];

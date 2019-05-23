@@ -6,6 +6,7 @@ import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.network.SPacketMiningModeChanged;
 import com.github.stilllogic20.bedrocktools.common.util.BlockFinder;
 import com.github.stilllogic20.bedrocktools.common.util.NBTAccess;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +45,8 @@ import java.util.stream.IntStream;
 
 import static net.minecraft.util.text.TextFormatting.BLUE;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemBedrockPickaxe extends ItemPickaxe {
 
     private static final String NAME = "bedrock_pickaxe";
@@ -57,33 +61,29 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         setHarvestLevel("pickaxe", -1);
     }
 
-    @Nonnull
-    private static NBTAccess prepare(@Nonnull ItemStack item) {
-        @Nonnull final NBTAccess access = new NBTAccess(item).prepare();
+    private static NBTAccess prepare(ItemStack item) {
+        final NBTAccess access = new NBTAccess(item).prepare();
         access.compareAndSet(MODE_KEY, null, new NBTTagCompound());
         return access.resolve(MODE_KEY).get();
     }
 
-    @Nonnull
-    public static MiningMode getMiningMode(@Nonnull ItemStack item) {
+    public static MiningMode getMiningMode(ItemStack item) {
         return prepare(item).getEnum(MINING_MODE_KEY, MiningMode.values()).orElse(MiningMode.NORMAL);
     }
 
-    @Nonnull
-    public static VeinMode getVeinMode(@Nonnull ItemStack item) {
+    public static VeinMode getVeinMode(ItemStack item) {
         return prepare(item).getEnum(VEIN_MODE_KEY, VeinMode.values()).orElse(VeinMode.OFF);
     }
 
-    public static void setMiningMode(@Nonnull ItemStack item, @Nonnull MiningMode miningMode) {
+    public static void setMiningMode(ItemStack item, MiningMode miningMode) {
         prepare(item).setEnum(MINING_MODE_KEY, miningMode);
     }
 
-    public static void setVeinMode(@Nonnull ItemStack item, @Nonnull VeinMode veinMode) {
+    public static void setVeinMode(ItemStack item, VeinMode veinMode) {
         prepare(item).setEnum(VEIN_MODE_KEY, veinMode);
     }
 
-    private static void breakBlock(@Nonnull ItemStack pickaxe, @Nonnull World world, @Nonnull BlockPos position,
-                                   @Nonnull EntityPlayer player, boolean force) {
+    private static void breakBlock(ItemStack pickaxe, World world, BlockPos position, EntityPlayer player, boolean force) {
         if (world.isRemote)
             return;
 
@@ -154,7 +154,7 @@ public class ItemBedrockPickaxe extends ItemPickaxe {
         });
     }
 
-    private static void dropItemStack(@Nonnull ItemStack stack, @Nonnull World world, double x, double y, double z) {
+    private static void dropItemStack(ItemStack stack, World world, double x, double y, double z) {
         final EntityItem entity = new EntityItem(world, x, y, z, stack);
         entity.setNoPickupDelay();
         world.spawnEntity(entity);

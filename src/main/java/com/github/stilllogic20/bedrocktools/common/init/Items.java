@@ -10,18 +10,15 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public final class Items {
 
-    @Nonnull
     public static final ItemBedrockPickaxe BEDROCK_PICKAXE;
-    @Nonnull
     public static final ItemBedrockSword BEDROCK_SWORD;
 
-    @Nonnull
     public static final Item PORTAL;
-    @Nonnull
     public static final Item END_PORTAL;
 
     static {
@@ -39,7 +36,7 @@ public final class Items {
     }
 
     @SubscribeEvent
-    public void registerItems(@Nonnull RegistryEvent.Register<Item> event) {
+    public void registerItems(RegistryEvent.Register<Item> event) {
         final IForgeRegistry<Item> registry = event.getRegistry();
         registry.register(BEDROCK_PICKAXE);
         registry.register(BEDROCK_SWORD);
