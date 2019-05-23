@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
-public class SPacketWeaponModeChanged implements IMessage, IMessageHandler<SPacketWeaponModeChanged, IMessage> {
+public class SPacketWeaponModeChanged implements IMessage {
 
     @Nullable
     private ItemBedrockSword.WeaponMode mode;
@@ -46,20 +46,24 @@ public class SPacketWeaponModeChanged implements IMessage, IMessageHandler<SPack
         buf.writeInt(getMode().ordinal());
     }
 
-    @Override
-    public IMessage onMessage(SPacketWeaponModeChanged message, MessageContext ctx) {
-        if (ctx.side != Side.CLIENT)
-            throw new AssertionError();
-        @Nonnull final ItemBedrockSword.WeaponMode mode = message.getMode();
-        final Minecraft mc = Minecraft.getMinecraft();
-        mc.addScheduledTask(() -> {
-            mc.player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s",
-                DARK_GRAY, GRAY, DARK_GRAY, WHITE,
-                I18n.format("bedrocktools.item.tooltip.weaponmode"),
-                BLUE,
-                I18n.format("bedrocktools.mode." + mode.name().toLowerCase()))));
-        });
-        return null;
+    public static final class Handler implements IMessageHandler<SPacketWeaponModeChanged, IMessage> {
+
+        @Override
+        public IMessage onMessage(SPacketWeaponModeChanged message, MessageContext ctx) {
+            if (ctx.side != Side.CLIENT)
+                throw new AssertionError();
+            @Nonnull final ItemBedrockSword.WeaponMode mode = message.getMode();
+            final Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s",
+                    DARK_GRAY, GRAY, DARK_GRAY, WHITE,
+                    I18n.format("bedrocktools.item.tooltip.weaponmode"),
+                    BLUE,
+                    I18n.format("bedrocktools.mode." + mode.name().toLowerCase()))));
+            });
+            return null;
+        }
+
     }
 
 }

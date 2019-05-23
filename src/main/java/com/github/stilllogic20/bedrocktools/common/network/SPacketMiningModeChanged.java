@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraft.util.text.TextFormatting.*;
 
-public class SPacketMiningModeChanged implements IMessage, IMessageHandler<SPacketMiningModeChanged, IMessage> {
+public class SPacketMiningModeChanged implements IMessage {
 
     @Nullable
     private ItemBedrockPickaxe.MiningMode mode;
@@ -46,22 +46,26 @@ public class SPacketMiningModeChanged implements IMessage, IMessageHandler<SPack
         buf.writeInt(getMode().ordinal());
     }
 
-    @Override
-    public IMessage onMessage(SPacketMiningModeChanged message, MessageContext ctx) {
-        if (ctx.side != Side.CLIENT)
-            throw new AssertionError();
-        @Nonnull final ItemBedrockPickaxe.MiningMode mode = message.getMode();
+    public static final class Handler implements IMessageHandler<SPacketMiningModeChanged, IMessage> {
 
-        final Minecraft mc = Minecraft.getMinecraft();
-        mc.addScheduledTask(() -> {
-            mc.player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s(%.0f)",
-                DARK_GRAY, GRAY, DARK_GRAY, WHITE,
-                I18n.format("bedrocktools.item.tooltip.miningmode"),
-                BLUE,
-                I18n.format("bedrocktools.mode." + mode.name().toLowerCase()),
-                mode.efficiency())));
-        });
-        return null;
+        @Override
+        public IMessage onMessage(SPacketMiningModeChanged message, MessageContext ctx) {
+            if (ctx.side != Side.CLIENT)
+                throw new AssertionError();
+            @Nonnull final ItemBedrockPickaxe.MiningMode mode = message.getMode();
+
+            final Minecraft mc = Minecraft.getMinecraft();
+            mc.addScheduledTask(() -> {
+                mc.player.sendMessage(new TextComponentString(String.format("%s[%sBedrockTools%s]%s %s: %s%s(%.0f)",
+                    DARK_GRAY, GRAY, DARK_GRAY, WHITE,
+                    I18n.format("bedrocktools.item.tooltip.miningmode"),
+                    BLUE,
+                    I18n.format("bedrocktools.mode." + mode.name().toLowerCase()),
+                    mode.efficiency())));
+            });
+            return null;
+        }
+
     }
 
 }

@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CPacketVeinModeChanged implements IMessage, IMessageHandler<CPacketVeinModeChanged, IMessage> {
+public class CPacketVeinModeChanged implements IMessage {
 
     @Nullable
     private VeinMode mode;
@@ -44,16 +44,20 @@ public class CPacketVeinModeChanged implements IMessage, IMessageHandler<CPacket
         buf.writeInt(getMode().ordinal());
     }
 
-    @Override
-    public IMessage onMessage(CPacketVeinModeChanged message, MessageContext ctx) {
-        if (ctx.side != Side.SERVER)
-            throw new AssertionError();
-        EntityPlayer player = ctx.getServerHandler().player;
-        ItemStack stack = player.getHeldItemMainhand();
-        if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
-            ItemBedrockPickaxe.setVeinMode(stack, message.getMode());
+    public static final class Handler implements IMessageHandler<CPacketVeinModeChanged, IMessage> {
+
+        @Override
+        public IMessage onMessage(CPacketVeinModeChanged message, MessageContext ctx) {
+            if (ctx.side != Side.SERVER)
+                throw new AssertionError();
+            EntityPlayer player = ctx.getServerHandler().player;
+            ItemStack stack = player.getHeldItemMainhand();
+            if (message != null && stack.getItem() instanceof ItemBedrockPickaxe) {
+                ItemBedrockPickaxe.setVeinMode(stack, message.getMode());
+            }
+            return null;
         }
-        return null;
+
     }
 
 }

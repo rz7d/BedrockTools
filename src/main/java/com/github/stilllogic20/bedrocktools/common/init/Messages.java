@@ -14,9 +14,9 @@ public class Messages {
     }
 
     public static void init() {
-        NETWORK.registerMessage(CPacketVeinModeChanged.class, CPacketVeinModeChanged.class, 0, Side.SERVER);
-        NETWORK.registerMessage(SPacketMiningModeChanged.class, SPacketMiningModeChanged.class, 1, Side.CLIENT);
-        NETWORK.registerMessage(SPacketWeaponModeChanged.class, SPacketWeaponModeChanged.class, 2, Side.CLIENT);
+        NETWORK.registerMessage(CPacketVeinModeChanged.Handler.class, CPacketVeinModeChanged.class, 0, Side.SERVER);
+        NETWORK.registerMessage(SPacketMiningModeChanged.Handler.class, SPacketMiningModeChanged.class, 1, Side.CLIENT);
+        NETWORK.registerMessage(SPacketWeaponModeChanged.Handler.class, SPacketWeaponModeChanged.class, 2, Side.CLIENT);
     }
 
 }
