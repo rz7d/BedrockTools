@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockFakeRealizer extends Block {
@@ -16,13 +17,18 @@ public class BlockFakeRealizer extends Block {
     public BlockFakeRealizer() {
         super(Material.ROCK);
         setRegistryName(BedrockToolsMod.MODID, "fake_realizer");
-        setTranslationKey("Compensation Service");
+        setTranslationKey("compensation_service");
     }
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
         playerIn.openGui(BedrockToolsMod.instance, GUIs.ID_FAKE_REALIZER, worldIn, pos.getX(), pos.getY(), pos.getZ());
+        return true;
+    }
+
+    @Override
+    public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
         return true;
     }
 

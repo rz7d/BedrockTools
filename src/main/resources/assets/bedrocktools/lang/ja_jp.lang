@@ -1,7 +1,10 @@
+itemGroup.bedrocktools=BedrockTools
+
 item.bedrock_pickaxe.name=岩盤のツルハシ
 item.bedrock_sword.name=岩盤の剣
 item.end_portal.name=エンドポータル
-itemGroup.bedrocktools=BedrockTools
+
+tile.compensation_service.name=補償サービス
 
 bedrocktools.item.tooltip.efficiency=採掘速度
 bedrocktools.item.tooltip.miningmode=採掘モード

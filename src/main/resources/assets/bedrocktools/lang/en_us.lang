@@ -1,7 +1,10 @@
+itemGroup.bedrocktools=BedrockTools
+
 item.bedrock_pickaxe.name=Bedrock Pickaxe
 item.bedrock_sword.name=Bedrock Sword
 item.end_portal.name=End Portal
-itemGroup.bedrocktools=BedrockTools
+
+tile.compensation_service.name=Compensation Service
 
 bedrocktools.item.tooltip.efficiency=Efficiency
 bedrocktools.item.tooltip.miningmode=Mining Mode
