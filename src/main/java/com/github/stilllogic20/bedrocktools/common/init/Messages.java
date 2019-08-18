@@ -10,6 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class Messages {
 
     public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("bedrocktools");
+
     private Messages() {
     }
 
