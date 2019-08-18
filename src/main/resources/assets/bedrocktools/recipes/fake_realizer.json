@@ -1,0 +1,20 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "bedrocktools:recipe_fake_realizer",
+  "result": {
+    "item": "bedrocktools:fake_realizer"
+  },
+  "pattern": [
+    "XXX",
+    "XTX",
+    "XXX"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:emerald"
+    },
+    "X": {
+      "item": "minecraft:bedrock"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "block/orientable",
+  "textures": {
+    "top": "bedrocktools:blocks/face_realizer_top",
+    "front": "bedrocktools:blocks/face_realizer_front_on",
+    "side": "bedrocktools:blocks/face_realizer_side"
+  }
+}

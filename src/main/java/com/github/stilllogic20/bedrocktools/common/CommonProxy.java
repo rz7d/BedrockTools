@@ -1,5 +1,6 @@
 package com.github.stilllogic20.bedrocktools.common;
 
+import com.github.stilllogic20.bedrocktools.common.init.Blocks;
 import com.github.stilllogic20.bedrocktools.common.init.Items;
 import com.github.stilllogic20.bedrocktools.common.init.Messages;
 import com.github.stilllogic20.bedrocktools.common.init.Recipes;
@@ -13,6 +14,7 @@ public class CommonProxy {
         Items.init();
         Recipes.init();
         Messages.init();
+        Blocks.init();
     }
 
 }

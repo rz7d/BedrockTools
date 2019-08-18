@@ -1,5 +1,6 @@
 package com.github.stilllogic20.bedrocktools.client.init;
 
+import com.github.stilllogic20.bedrocktools.common.init.Blocks;
 import com.github.stilllogic20.bedrocktools.common.init.Items;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -24,7 +25,7 @@ public final class Renders {
         MinecraftForge.EVENT_BUS.register(new Renders());
     }
 
-    private static void registerToRender(@Nonnull Item item) {
+    private static void registerItemToRender(@Nonnull Item item) {
         final ResourceLocation registryName = item.getRegistryName();
 
         if (registryName == null)
@@ -35,10 +36,11 @@ public final class Renders {
 
     @SubscribeEvent
     public void registerModels(@Nullable ModelRegistryEvent event) {
-        registerToRender(Items.BEDROCK_PICKAXE);
-        registerToRender(Items.BEDROCK_SWORD);
-        registerToRender(Items.PORTAL);
-        registerToRender(Items.END_PORTAL);
+        registerItemToRender(Items.BEDROCK_PICKAXE);
+        registerItemToRender(Items.BEDROCK_SWORD);
+        registerItemToRender(Items.PORTAL);
+        registerItemToRender(Items.END_PORTAL);
+        registerItemToRender(Blocks.FAKE_REALIZER_ITEM);
     }
 
 }

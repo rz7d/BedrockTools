@@ -1,0 +1,19 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "textures": {
+      "particle": "bedrocktools:blocks/fake_realizer_top"
+    },
+    "model": "bedrocktools:fake_realizer",
+    "uvlock": false
+  },
+  "variants": {
+    "normal": [{
+      "facing=north": { "model": "bedrocktools:fake_realizer" },
+      "facing=south": { "model": "bedrocktools:fake_realizer", "y": 180 },
+      "facing=west":  { "model": "bedrocktools:fake_realizer", "y": 270 },
+      "facing=east":  { "model": "bedrocktools:fake_realizer", "y": 90 }
+    }],
+    "inventory": [{}]
+  }
+}

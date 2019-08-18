@@ -1,0 +1,21 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "bedrocktools:recipe_end_portal_frame",
+  "result": {
+    "item": "bedrocktools:end_portal",
+    "count": 64
+  },
+  "pattern": [
+    "XXX",
+    "TTT",
+    "XXX"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:ender_pearl"
+    },
+    "X": {
+      "item": "minecraft:cobblestone"
+    }
+  }
+}
